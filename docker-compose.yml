@@ -1,0 +1,21 @@
+# The app uses hosted Supabase for auth + database, so there is no local
+# Postgres service. Secrets are read from your shell / a .env file — never
+# hardcode them here. Run with:  docker compose up --build
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - NODE_ENV=production
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend

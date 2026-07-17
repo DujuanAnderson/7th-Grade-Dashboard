@@ -1,0 +1,11 @@
+/* Tailwind utility classes are provided at runtime by the CDN <script> in
+   index.html, so no PostCSS/Tailwind build step is needed for local dev.
+   This file only carries a few base styles. */
+:root {
+  color-scheme: light;
+}
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f3f5f7;
+}
