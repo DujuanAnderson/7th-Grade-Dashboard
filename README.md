@@ -98,6 +98,10 @@ npm run dev            # http://localhost:5000
 ```
 
 ## Security notes
+
+See [SECURITY.md](SECURITY.md) for the full policy and a **required key-rotation**
+notice (earlier commits exposed a Supabase service key).
+
 - Secrets live in `.env` files, which are gitignored. **Never commit them.**
 - The `SUPABASE_SERVICE_KEY` bypasses RLS — server-side only.
 - The frontend uses the public **anon** key; data is protected by the RLS
