@@ -1,10 +1,15 @@
 -- 7th Grade Academy — consolidated data seed (schools + all student data).
 -- Run this whole file in the Supabase SQL Editor AFTER schema.sql.
--- It is FK-safe (schools first) and idempotent for schools; student rows
--- use explicit ids. Run 005_seed_logins.sql separately for the logins.
+-- Re-runnable: it TRUNCATEs the data tables first, then reloads them, so
+-- it will NOT collide with rows from a previous run. schools are upserted.
+-- Run 005_seed_logins.sql separately for the per-role logins.
 -- Wrapped in a transaction: if anything fails, nothing changes.
 
 BEGIN;
+
+-- Clear any existing data rows (children via CASCADE) so re-runs don't collide.
+TRUNCATE alerts, assessments, attendance_log, teacher_marks,
+         clearmath_uploads, ffw_uploads, students RESTART IDENTITY CASCADE;
 
 -- ===== 001_seed_schools.sql =====
 -- 7th Grade Academy — seed data: schools (reference table)
