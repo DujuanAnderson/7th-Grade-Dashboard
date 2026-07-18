@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { Student } from './types';
-import { computeRisk } from './mockData';
+import { computeRisk } from './compute';
 
 export type Programme = 'ffw' | 'clearmath';
 

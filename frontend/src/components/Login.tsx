@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { login, DEMO_MODE, type DemoRole } from '../lib/dataClient';
+import { login } from '../lib/dataClient';
 import type { CurrentUser } from '../lib/types';
 import { NAVY, TEAL, GOLD } from '../lib/theme';
 
 export default function Login({ onLogin }: { onLogin: (u: CurrentUser) => void }) {
-  const [email, setEmail] = useState(DEMO_MODE ? 'teacher@demo.zlc' : '');
-  const [password, setPassword] = useState(DEMO_MODE ? 'demo' : '');
-  const [demoRole, setDemoRole] = useState<DemoRole>('teacher');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -15,7 +14,7 @@ export default function Login({ onLogin }: { onLogin: (u: CurrentUser) => void }
     setError('');
     setBusy(true);
     try {
-      onLogin(await login(email, password, demoRole));
+      onLogin(await login(email, password));
     } catch (err: any) {
       setError(err?.message ?? 'Login failed');
     } finally {
@@ -38,23 +37,6 @@ export default function Login({ onLogin }: { onLogin: (u: CurrentUser) => void }
             <h1 className="text-2xl font-bold" style={{ color: NAVY }}>7th Grade Academy</h1>
             <p className="text-sm text-gray-500">Data Dashboard</p>
           </div>
-
-          {DEMO_MODE && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 mb-1">Sign in as (demo)</label>
-              <div className="grid grid-cols-2 gap-2">
-                {([['teacher', 'Teacher'], ['admin', 'Administrator']] as [DemoRole, string][]).map(([r, label]) => (
-                  <button
-                    key={r} type="button" onClick={() => setDemoRole(r)}
-                    className="px-3 py-2 rounded-lg text-sm font-medium border"
-                    style={demoRole === r ? { background: NAVY, color: 'white', borderColor: NAVY } : { color: NAVY, borderColor: '#d1d5db' }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -81,13 +63,6 @@ export default function Login({ onLogin }: { onLogin: (u: CurrentUser) => void }
               {busy ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
-
-          {DEMO_MODE && (
-            <div className="mt-6 text-xs text-center text-gray-500 bg-gray-50 rounded-lg p-3">
-              <strong>Demo mode</strong> — no Supabase configured. Any email/password
-              works and loads a sample cohort.
-            </div>
-          )}
         </div>
       </div>
     </div>

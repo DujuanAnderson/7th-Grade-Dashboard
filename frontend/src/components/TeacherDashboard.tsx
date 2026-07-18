@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CurrentUser, Student, School, RiskStatus } from '../lib/types';
-import { getStudents, getSchools, logout, SAMPLE_DATA } from '../lib/dataClient';
-import { CLASS_MASTERY_TREND } from '../lib/mockData';
+import { getStudents, getSchools, logout } from '../lib/dataClient';
+import { classMasteryTrend } from '../lib/compute';
 import { NAVY, GOLD, TEAL, STATUS, BAND_COLOR, INK_MUTED } from '../lib/theme';
 import { ReadingBandChart, MasteryTrendChart } from './Charts';
 import StudentProfileCard from './StudentProfileCard';
@@ -33,15 +33,29 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<Tab>('overview');
   const [acked, setAcked] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const alerts = useMemo(() => evaluateAlerts(students), [students]);
   const openStudent = (id: number) => setSelected(students.find((s) => s.id === id) ?? null);
 
-  useEffect(() => {
-    getStudents().then(setStudents);
-    setSchools(getSchools());
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [st, sc] = await Promise.all([getStudents(), getSchools()]);
+      setStudents(st);
+      setSchools(sc);
+    } catch (e: any) {
+      setError(e?.message ?? 'Could not load your cohort.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => { load(); }, [load]);
+
+  const masteryTrend = useMemo(() => classMasteryTrend(students), [students]);
   const school = schools.find((s) => s.id === user.schoolId);
 
   const counts = useMemo(() => {
@@ -102,13 +116,34 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
               {user.name} · {school?.name} ({school?.code}) · {user.cohortName} · {students.length} students
             </p>
           </div>
-          {SAMPLE_DATA && (
-            <span className="text-xs px-2.5 py-1 rounded-full border" style={{ borderColor: GOLD, color: '#8a5a00' }}>
-              Sample data (Phase 1)
-            </span>
-          )}
         </div>
 
+        {loading && (
+          <div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-500">
+            Loading your cohort…
+          </div>
+        )}
+        {error && (
+          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#f0c0c0' }}>
+            <p className="font-medium mb-1" style={{ color: '#c62828' }}>Couldn’t load data</p>
+            <p className="text-sm text-gray-600 mb-3">{error}</p>
+            <button onClick={load} className="text-sm text-white px-3 py-1.5 rounded-lg" style={{ background: NAVY }}>
+              Retry
+            </button>
+          </div>
+        )}
+        {!loading && !error && students.length === 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 p-10 text-center">
+            <p className="font-medium mb-1" style={{ color: NAVY }}>No students to display</p>
+            <p className="text-sm text-gray-500">
+              No records are visible for your account yet. Once your cohort is loaded into the
+              database it will appear here automatically.
+            </p>
+          </div>
+        )}
+
+        {!loading && !error && students.length > 0 && (
+        <>
         {/* Tabs */}
         <div className="border-b border-gray-200 flex gap-1">
           {([['overview', 'Overview'], ['upload', 'Upload Centre'], ['entry', 'Data Entry']] as [Tab, string][]).map(
@@ -152,7 +187,7 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
           <div className="bg-white rounded-xl border border-gray-200 p-4">
             <h2 className="font-semibold mb-1" style={{ color: NAVY }}>Class Mastery vs. Benchmark</h2>
             <p className="text-xs text-gray-400 mb-2">Clear Math concept mastery, rolling 6 weeks</p>
-            <MasteryTrendChart data={CLASS_MASTERY_TREND} />
+            <MasteryTrendChart data={masteryTrend} />
           </div>
         </div>
 
@@ -227,6 +262,8 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
         )}
         {tab === 'entry' && (
           <DataEntry students={students} onUpdate={setStudents} />
+        )}
+        </>
         )}
       </main>
 

@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   ScatterChart, Scatter, ZAxis, Cell, LabelList,
 } from 'recharts';
 import type { CurrentUser, Student, School, RiskStatus } from '../lib/types';
 import { getAllStudents, getSchools, logout } from '../lib/dataClient';
-import { computeRisk } from '../lib/mockData';
+import { computeRisk } from '../lib/compute';
 import { NAVY, TEAL, GOLD, STATUS, GRID, AXIS, INK_MUTED, schoolColor } from '../lib/theme';
 import StudentProfileCard from './StudentProfileCard';
 import NotificationBell from './NotificationBell';
@@ -57,13 +57,26 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
   const [sortKey, setSortKey] = useState<SortKey>('code');
   const [sortAsc, setSortAsc] = useState(true);
   const [acked, setAcked] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const alerts = useMemo(() => evaluateAlerts(students), [students]);
 
-  useEffect(() => {
-    getAllStudents().then(setStudents);
-    setSchools(getSchools());
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [st, sc] = await Promise.all([getAllStudents(), getSchools()]);
+      setStudents(st);
+      setSchools(sc);
+    } catch (e: any) {
+      setError(e?.message ?? 'Could not load cross-school data.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   const perSchool = useMemo(
     () => schools.map((sc) => ({ school: sc, kpis: schoolKpis(students.filter((s) => s.schoolId === sc.id)) })),
@@ -131,6 +144,32 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-6 space-y-6">
+        {loading && (
+          <div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-500">
+            Loading cross-school data…
+          </div>
+        )}
+        {error && (
+          <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#f0c0c0' }}>
+            <p className="font-medium mb-1" style={{ color: '#c62828' }}>Couldn’t load data</p>
+            <p className="text-sm text-gray-600 mb-3">{error}</p>
+            <button onClick={load} className="text-sm text-white px-3 py-1.5 rounded-lg" style={{ background: NAVY }}>
+              Retry
+            </button>
+          </div>
+        )}
+        {!loading && !error && students.length === 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 p-10 text-center">
+            <p className="font-medium mb-1" style={{ color: NAVY }}>No data to display</p>
+            <p className="text-sm text-gray-500">
+              No student records are visible for your account yet. Once schools load their
+              cohorts into the database they will appear here automatically.
+            </p>
+          </div>
+        )}
+
+        {!loading && !error && students.length > 0 && (
+        <>
         {/* Global filter bar */}
         <div className="bg-white rounded-xl border border-gray-200 p-3 flex flex-wrap items-center gap-3">
           <select value={schoolFilter} onChange={(e) => setSchoolFilter(Number(e.target.value))} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
@@ -339,6 +378,8 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
             </table>
           </div>
         </div>
+        </>
+        )}
       </main>
 
       {selected && <StudentProfileCard student={selected} school={schoolOf(selected.schoolId)} onClose={() => setSelected(null)} />}

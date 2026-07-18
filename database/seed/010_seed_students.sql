@@ -1,0 +1,50 @@
+-- 7th Grade Academy — seed data: students
+-- Auto-generated to mirror frontend/src/lib/mockData.ts. Safe to re-run after a
+-- truncate. Run AFTER schema.sql (schools + students must exist first).
+
+INSERT INTO students (id, first_name, last_name, school_id, teacher_id, grade, zlc_id) VALUES
+  (1, 'Andre', 'Clarke', 1, NULL, 7, 'ZLC-HTHS-101'),
+  (2, 'Shanice', 'Brown', 1, NULL, 7, 'ZLC-HTHS-102'),
+  (3, 'Devon', 'Reid', 1, NULL, 7, 'ZLC-HTHS-103'),
+  (4, 'Kadeen', 'Powell', 1, NULL, 7, 'ZLC-HTHS-104'),
+  (5, 'Tamara', 'Grant', 1, NULL, 7, 'ZLC-HTHS-105'),
+  (6, 'Rohan', 'Malcolm', 1, NULL, 7, 'ZLC-HTHS-106'),
+  (7, 'Alicia', 'Stewart', 1, NULL, 7, 'ZLC-HTHS-107'),
+  (8, 'Jerome', 'Campbell', 1, NULL, 7, 'ZLC-HTHS-108'),
+  (9, 'Britney', 'Walsh', 1, NULL, 7, 'ZLC-HTHS-109'),
+  (10, 'Marlon', 'Ellis', 1, NULL, 7, 'ZLC-HTHS-110'),
+  (11, 'Chantal', 'Reid', 1, NULL, 7, 'ZLC-HTHS-111'),
+  (12, 'Odane', 'Palmer', 1, NULL, 7, 'ZLC-HTHS-112'),
+  (200, 'Keisha', 'Ferguson', 2, NULL, 7, 'ZLC-NHS-101'),
+  (201, 'Dwayne', 'Palmer', 2, NULL, 7, 'ZLC-NHS-102'),
+  (202, 'Latoya', 'Morgan', 2, NULL, 7, 'ZLC-NHS-103'),
+  (203, 'Omar', 'Bryan', 2, NULL, 7, 'ZLC-NHS-104'),
+  (204, 'Nadia', 'Rose', 2, NULL, 7, 'ZLC-NHS-105'),
+  (205, 'Kemar', 'Gordon', 2, NULL, 7, 'ZLC-NHS-106'),
+  (206, 'Simone', 'Blake', 2, NULL, 7, 'ZLC-NHS-107'),
+  (207, 'Rohan', 'Dixon', 2, NULL, 7, 'ZLC-NHS-108'),
+  (208, 'Aaliyah', 'Chin', 2, NULL, 7, 'ZLC-NHS-109'),
+  (209, 'Tevin', 'Bailey', 2, NULL, 7, 'ZLC-NHS-110'),
+  (300, 'Renae', 'Chin', 3, NULL, 7, 'ZLC-SMC-101'),
+  (301, 'Damion', 'Bailey', 3, NULL, 7, 'ZLC-SMC-102'),
+  (302, 'Shanté', 'Henry', 3, NULL, 7, 'ZLC-SMC-103'),
+  (303, 'Jamal', 'Wright', 3, NULL, 7, 'ZLC-SMC-104'),
+  (304, 'Keisha', 'Foster', 3, NULL, 7, 'ZLC-SMC-105'),
+  (305, 'Dwayne', 'Watson', 3, NULL, 7, 'ZLC-SMC-106'),
+  (306, 'Latoya', 'Ferguson', 3, NULL, 7, 'ZLC-SMC-107'),
+  (307, 'Omar', 'Palmer', 3, NULL, 7, 'ZLC-SMC-108'),
+  (308, 'Nadia', 'Morgan', 3, NULL, 7, 'ZLC-SMC-109'),
+  (400, 'Keisha', 'Ferguson', 4, NULL, 7, 'ZLC-PHHS-101'),
+  (401, 'Dwayne', 'Palmer', 4, NULL, 7, 'ZLC-PHHS-102'),
+  (402, 'Latoya', 'Morgan', 4, NULL, 7, 'ZLC-PHHS-103'),
+  (403, 'Omar', 'Bryan', 4, NULL, 7, 'ZLC-PHHS-104'),
+  (404, 'Nadia', 'Rose', 4, NULL, 7, 'ZLC-PHHS-105'),
+  (405, 'Kemar', 'Gordon', 4, NULL, 7, 'ZLC-PHHS-106'),
+  (406, 'Simone', 'Blake', 4, NULL, 7, 'ZLC-PHHS-107'),
+  (407, 'Rohan', 'Dixon', 4, NULL, 7, 'ZLC-PHHS-108'),
+  (408, 'Aaliyah', 'Chin', 4, NULL, 7, 'ZLC-PHHS-109'),
+  (409, 'Tevin', 'Bailey', 4, NULL, 7, 'ZLC-PHHS-110'),
+  (410, 'Renae', 'Henry', 4, NULL, 7, 'ZLC-PHHS-111');
+
+-- Keep the SERIAL sequence ahead of the explicit ids we inserted.
+SELECT setval('students_id_seq', (SELECT MAX(id) FROM students));

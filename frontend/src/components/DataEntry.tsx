@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Student, AttendanceEntry } from '../lib/types';
-import { computeRisk } from '../lib/mockData';
+import { computeRisk } from '../lib/compute';
 import { NAVY, TEAL, STATUS } from '../lib/theme';
 
 const SUBJECTS = [
