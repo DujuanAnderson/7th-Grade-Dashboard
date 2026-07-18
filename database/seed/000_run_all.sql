@@ -10,6 +10,15 @@
 
 BEGIN;
 
+-- Ensure the reference schools exist (students FK to schools(id)).
+INSERT INTO schools (id, name, code) VALUES
+  (1, 'Holy Trinity High School',    'HTHS'),
+  (2, 'Newell High School',          'NHS'),
+  (3, 'St. Mary''s College',         'SMC'),
+  (4, 'Pembroke Hall High School',   'PHHS')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, code = EXCLUDED.code;
+SELECT setval('schools_id_seq', (SELECT MAX(id) FROM schools));
+
 -- Clear existing rows (children first) so re-runs don't duplicate.
 TRUNCATE alerts, assessments, attendance_log, teacher_marks,
          clearmath_uploads, ffw_uploads, students RESTART IDENTITY CASCADE;

@@ -8,6 +8,7 @@ the demo mode does — 42 students across the four schools.
 
 | File | Table | What it holds |
 |------|-------|---------------|
+| `001_seed_schools.sql`          | `schools`            | The 4 schools (idempotent; run before 005/010) |
 | `005_seed_logins.sql`           | `auth.users` + `profiles` | One login per role (all 5 access levels) |
 | `010_seed_students.sql`         | `students`           | 42 pupils (ids 1–12 Holy Trinity, 200s/300s/400s the other schools) |
 | `020_seed_ffw_uploads.sql`      | `ffw_uploads`        | Latest Fast ForWord login per student (protocol, completion %, last login) |
@@ -20,10 +21,15 @@ the demo mode does — 42 students across the four schools.
 ## How to load
 
 1. Apply `../schema.sql` first (creates tables, RLS, and the 4 schools).
-2. Run `005_seed_logins.sql` to create the per-role logins (see below).
-3. Load the student data — in the Supabase SQL Editor either:
+2. Run `001_seed_schools.sql` — the four schools. **Required before 005/010**:
+   `profiles.school_id` and `students.school_id` both FK to `schools(id)`, so
+   those seeds fail if this table is empty. (Safe/idempotent even if schema.sql
+   already seeded them.)
+3. Run `005_seed_logins.sql` to create the per-role logins (see below).
+4. Load the student data — in the Supabase SQL Editor either:
    - run the files `010` → `070` in order, **or**
-   - run `000_run_all.sql` (truncates + reloads the data tables; safe to re-run).
+   - run `000_run_all.sql` (ensures schools, then truncates + reloads the data
+     tables; safe to re-run).
 
 `005_seed_logins.sql` is independent of the data reload — `000_run_all.sql`
 does **not** touch `auth.users` or `profiles`, so your logins survive a
