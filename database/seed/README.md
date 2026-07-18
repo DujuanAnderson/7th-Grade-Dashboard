@@ -9,6 +9,7 @@ the demo mode does — 42 students across the four schools.
 | File | Table | What it holds |
 |------|-------|---------------|
 | `001_seed_schools.sql`          | `schools`            | The 4 schools (idempotent; run before 005/010) |
+| `002_rls_policies.sql`          | (all tables)         | RLS helper functions + read policies (idempotent) |
 | `005_seed_logins.sql`           | `auth.users` + `profiles` | One login per role (all 5 access levels) |
 | `010_seed_students.sql`         | `students`           | 42 pupils (ids 1–12 Holy Trinity, 200s/300s/400s the other schools) |
 | `020_seed_ffw_uploads.sql`      | `ffw_uploads`        | Latest Fast ForWord login per student (protocol, completion %, last login) |
