@@ -61,3 +61,36 @@ export interface CurrentUser {
   schoolId: number;
   cohortName: string;
 }
+
+// The five application roles (mirrors the profiles.role CHECK in schema.sql).
+export type UserRole =
+  | 'instructional_leader'
+  | 'programme_manager'
+  | 'stmc_team'
+  | 'school_admin'
+  | 'teacher';
+
+export const USER_ROLES: UserRole[] = [
+  'instructional_leader',
+  'programme_manager',
+  'stmc_team',
+  'school_admin',
+  'teacher',
+];
+
+// Roles that are scoped to a single school (must have a school_id set).
+export const SCHOOL_SCOPED_ROLES: UserRole[] = ['school_admin', 'teacher'];
+
+export function roleLabel(role: string): string {
+  return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// A managed account, as shown in the admin "Manage Users" panel.
+export interface UserProfile {
+  id: string;
+  email: string;
+  role: UserRole;
+  schoolId: number | null;
+  lastLogin: string | null;
+  createdAt: string | null;
+}

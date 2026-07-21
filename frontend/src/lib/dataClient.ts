@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { computeRisk, bandForRpi } from './compute';
 import type {
   Student, School, CurrentUser, RiskStatus, Mark, AttendanceEntry, Alert,
+  UserProfile, UserRole,
 } from './types';
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -197,4 +198,61 @@ export async function getStudents(): Promise<Student[]> {
 export async function getAllStudents(): Promise<Student[]> {
   // Full cross-school population for the Administrator dashboard (RLS-scoped).
   return fetchStudents();
+}
+
+// ---------------------------------------------------------------------------
+// User management (Administrator only)
+//
+// Accounts live in `profiles`, one row per Supabase auth user. Reading and
+// writing other people's profiles is gated by RLS: the admin management
+// policies (database/seed/003_profiles_admin_policies.sql) let all-school
+// admins list, re-role, re-assign, and remove profiles. A non-admin session
+// only ever sees its own row, so these calls are safe to expose in the UI.
+//
+// NOTE: creating a brand-new sign-in requires minting a Supabase auth user,
+// which needs the service key and therefore happens server-side (see the
+// seed_logins pattern) — it is intentionally not offered from the browser.
+// ---------------------------------------------------------------------------
+
+function mapRowToUser(row: any): UserProfile {
+  return {
+    id: row.id,
+    email: row.email ?? '',
+    role: row.role as UserRole,
+    schoolId: row.school_id ?? null,
+    lastLogin: row.last_login ?? null,
+    createdAt: row.created_at ?? null,
+  };
+}
+
+export async function getUsers(): Promise<UserProfile[]> {
+  const { data, error } = await client()
+    .from('profiles')
+    .select('id, email, role, school_id, last_login, created_at')
+    .order('role');
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapRowToUser);
+}
+
+export async function updateUser(
+  id: string,
+  changes: { role?: UserRole; schoolId?: number | null },
+): Promise<UserProfile> {
+  const patch: Record<string, unknown> = {};
+  if (changes.role !== undefined) patch.role = changes.role;
+  if (changes.schoolId !== undefined) patch.school_id = changes.schoolId;
+
+  const { data, error } = await client()
+    .from('profiles')
+    .update(patch)
+    .eq('id', id)
+    .select('id, email, role, school_id, last_login, created_at')
+    .single();
+  if (error) throw new Error(error.message);
+  return mapRowToUser(data);
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  const { error } = await client().from('profiles').delete().eq('id', id);
+  if (error) throw new Error(error.message);
 }

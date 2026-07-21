@@ -8,6 +8,7 @@ import { getAllStudents, getSchools, logout } from '../lib/dataClient';
 import { computeRisk } from '../lib/compute';
 import { NAVY, TEAL, GOLD, STATUS, GRID, AXIS, INK_MUTED, schoolColor } from '../lib/theme';
 import StudentProfileCard from './StudentProfileCard';
+import ManageUsers from './ManageUsers';
 import NotificationBell from './NotificationBell';
 import { evaluateAlerts } from '../lib/alerts';
 import { exportRosterXlsx, printCrossSchoolReport } from '../lib/exports';
@@ -54,6 +55,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
   const [schoolFilter, setSchoolFilter] = useState(0); // 0 = all
   const [riskFilter, setRiskFilter] = useState<'All' | RiskStatus>('All');
   const [selected, setSelected] = useState<Student | null>(null);
+  const [manageUsers, setManageUsers] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>('code');
   const [sortAsc, setSortAsc] = useState(true);
   const [acked, setAcked] = useState<Set<string>>(new Set());
@@ -138,6 +140,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
             />
             <span className="hidden sm:inline opacity-80">{user.name}</span>
             <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: GOLD, color: NAVY }}>{user.role.replace(/_/g, ' ')}</span>
+            <button onClick={() => setManageUsers(true)} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Manage Users</button>
             <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Logout</button>
           </div>
         </div>
@@ -383,6 +386,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
       </main>
 
       {selected && <StudentProfileCard student={selected} school={schoolOf(selected.schoolId)} onClose={() => setSelected(null)} />}
+      {manageUsers && <ManageUsers user={user} schools={schools} onClose={() => setManageUsers(false)} />}
     </div>
   );
 }

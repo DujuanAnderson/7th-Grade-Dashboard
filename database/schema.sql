@@ -177,6 +177,17 @@ CREATE POLICY profiles_self ON profiles FOR SELECT TO authenticated
 CREATE POLICY profiles_self_update ON profiles FOR UPDATE TO authenticated
     USING (id = auth.uid());
 
+-- All-school admins manage every account (the "Manage Users" panel): list,
+-- re-role, re-assign school scope, and remove profile rows. Safe from policy
+-- recursion because is_all_school_admin() reads profiles via a SECURITY
+-- DEFINER helper that bypasses RLS.
+CREATE POLICY profiles_admin_read ON profiles FOR SELECT TO authenticated
+    USING (public.is_all_school_admin());
+CREATE POLICY profiles_admin_update ON profiles FOR UPDATE TO authenticated
+    USING (public.is_all_school_admin()) WITH CHECK (public.is_all_school_admin());
+CREATE POLICY profiles_admin_delete ON profiles FOR DELETE TO authenticated
+    USING (public.is_all_school_admin());
+
 -- Students: all-school admins see everyone; school-scoped users see own school.
 CREATE POLICY students_read ON students FOR SELECT TO authenticated
     USING (public.is_all_school_admin() OR school_id = public.auth_school());
