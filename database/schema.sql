@@ -183,6 +183,8 @@ CREATE POLICY profiles_self_update ON profiles FOR UPDATE TO authenticated
 -- DEFINER helper that bypasses RLS.
 CREATE POLICY profiles_admin_read ON profiles FOR SELECT TO authenticated
     USING (public.is_all_school_admin());
+CREATE POLICY profiles_admin_insert ON profiles FOR INSERT TO authenticated
+    WITH CHECK (public.is_all_school_admin());
 CREATE POLICY profiles_admin_update ON profiles FOR UPDATE TO authenticated
     USING (public.is_all_school_admin()) WITH CHECK (public.is_all_school_admin());
 CREATE POLICY profiles_admin_delete ON profiles FOR DELETE TO authenticated

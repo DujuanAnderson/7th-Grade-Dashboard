@@ -50,6 +50,7 @@ DROP POLICY IF EXISTS schools_read          ON schools;
 DROP POLICY IF EXISTS profiles_self         ON profiles;
 DROP POLICY IF EXISTS profiles_self_update  ON profiles;
 DROP POLICY IF EXISTS profiles_admin_read   ON profiles;
+DROP POLICY IF EXISTS profiles_admin_insert ON profiles;
 DROP POLICY IF EXISTS profiles_admin_update ON profiles;
 DROP POLICY IF EXISTS profiles_admin_delete ON profiles;
 DROP POLICY IF EXISTS students_read         ON students;
@@ -72,6 +73,8 @@ CREATE POLICY profiles_self_update ON profiles FOR UPDATE TO authenticated
 -- All-school admins manage every account (the "Manage Users" panel).
 CREATE POLICY profiles_admin_read ON profiles FOR SELECT TO authenticated
     USING (public.is_all_school_admin());
+CREATE POLICY profiles_admin_insert ON profiles FOR INSERT TO authenticated
+    WITH CHECK (public.is_all_school_admin());
 CREATE POLICY profiles_admin_update ON profiles FOR UPDATE TO authenticated
     USING (public.is_all_school_admin()) WITH CHECK (public.is_all_school_admin());
 CREATE POLICY profiles_admin_delete ON profiles FOR DELETE TO authenticated

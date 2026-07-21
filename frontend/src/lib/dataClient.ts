@@ -214,6 +214,20 @@ export async function getAllStudents(): Promise<Student[]> {
 // seed_logins pattern) — it is intentionally not offered from the browser.
 // ---------------------------------------------------------------------------
 
+// A second, throwaway client used only to sign up a brand-new auth user.
+// persistSession/autoRefresh are OFF and it has its own storageKey, so calling
+// signUp here never touches or replaces the administrator's live session.
+let signupClient: SupabaseClient | null = null;
+function ephemeralClient(): SupabaseClient {
+  if (!IS_CONFIGURED) throw new Error(NOT_CONFIGURED);
+  if (!signupClient) {
+    signupClient = createClient(url as string, anon as string, {
+      auth: { persistSession: false, autoRefreshToken: false, storageKey: 'zlc-signup' },
+    });
+  }
+  return signupClient;
+}
+
 function mapRowToUser(row: any): UserProfile {
   return {
     id: row.id,
@@ -255,4 +269,37 @@ export async function updateUser(
 export async function deleteUser(id: string): Promise<void> {
   const { error } = await client().from('profiles').delete().eq('id', id);
   if (error) throw new Error(error.message);
+}
+
+export async function createUser(input: {
+  email: string;
+  password: string;
+  role: UserRole;
+  schoolId: number | null;
+}): Promise<UserProfile> {
+  // 1) Mint the Supabase auth user on the throwaway client so the admin stays
+  //    signed in. (Requires the project's "Confirm email" setting to be OFF for
+  //    the account to be usable immediately.)
+  const { data: signUp, error: signUpErr } = await ephemeralClient().auth.signUp({
+    email: input.email,
+    password: input.password,
+  });
+  if (signUpErr) throw new Error(signUpErr.message);
+  const newId = signUp.user?.id;
+  if (!newId) {
+    throw new Error('Account could not be created (Supabase returned no user).');
+  }
+
+  // 2) Insert the application profile as the admin (RLS: profiles_admin_insert).
+  const { data, error } = await client()
+    .from('profiles')
+    .insert({ id: newId, email: input.email, role: input.role, school_id: input.schoolId })
+    .select('id, email, role, school_id, last_login, created_at')
+    .single();
+  if (error) {
+    throw new Error(
+      `Auth user was created but its profile could not be saved: ${error.message}`,
+    );
+  }
+  return mapRowToUser(data);
 }

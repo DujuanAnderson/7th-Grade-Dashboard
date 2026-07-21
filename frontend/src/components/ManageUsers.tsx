@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CurrentUser, School, UserProfile, UserRole } from '../lib/types';
 import { USER_ROLES, SCHOOL_SCOPED_ROLES, roleLabel } from '../lib/types';
-import { getUsers, updateUser, deleteUser } from '../lib/dataClient';
+import { getUsers, updateUser, deleteUser, createUser } from '../lib/dataClient';
 import { NAVY, TEAL, GOLD, INK_MUTED, schoolColor } from '../lib/theme';
 
 function RolePill({ role }: { role: UserRole }) {
@@ -28,6 +28,16 @@ export default function ManageUsers({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [rowError, setRowError] = useState<Record<string, string>>({});
   const [confirmDelete, setConfirmDelete] = useState<UserProfile | null>(null);
+
+  // Add-user form state.
+  const [showAdd, setShowAdd] = useState(false);
+  const [nEmail, setNEmail] = useState('');
+  const [nPassword, setNPassword] = useState('');
+  const [nRole, setNRole] = useState<UserRole>('teacher');
+  const [nSchool, setNSchool] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addNotice, setAddNotice] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -93,6 +103,40 @@ export default function ManageUsers({
     }
   };
 
+  const nScoped = SCHOOL_SCOPED_ROLES.includes(nRole);
+
+  const resetAdd = () => {
+    setNEmail(''); setNPassword(''); setNRole('teacher'); setNSchool(null);
+    setAddError(null); setAddNotice(null);
+  };
+
+  const submitAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddError(null); setAddNotice(null);
+    const email = nEmail.trim();
+    if (!email || nPassword.length < 8) {
+      setAddError('Enter an email and a password of at least 8 characters.');
+      return;
+    }
+    const schoolId = nScoped ? (nSchool ?? schools[0]?.id ?? null) : null;
+    if (nScoped && schoolId == null) {
+      setAddError('Select a school for this role.');
+      return;
+    }
+    setCreating(true);
+    try {
+      const created = await createUser({ email, password: nPassword, role: nRole, schoolId });
+      setUsers((prev) => [created, ...prev]);
+      resetAdd();
+      setShowAdd(false);
+      setAddNotice(`Created ${created.email}.`);
+    } catch (err: any) {
+      setAddError(err?.message ?? 'Could not create the account.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4"
@@ -126,7 +170,84 @@ export default function ManageUsers({
             >
               Refresh
             </button>
+            <button
+              onClick={() => { setShowAdd((v) => !v); setAddError(null); setAddNotice(null); }}
+              className="text-sm px-3 py-1.5 rounded-lg text-white font-medium"
+              style={{ background: TEAL }}
+            >
+              {showAdd ? 'Close' : '+ Add User'}
+            </button>
           </div>
+
+          {addNotice && !showAdd && (
+            <p className="text-sm" style={{ color: TEAL }}>{addNotice}</p>
+          )}
+
+          {showAdd && (
+            <form onSubmit={submitAdd} className="rounded-xl border border-gray-200 p-4 space-y-3" style={{ background: '#fafbfc' }}>
+              <div className="font-semibold text-sm" style={{ color: NAVY }}>New account</div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="text-xs text-gray-500">Email</span>
+                  <input
+                    type="email" value={nEmail} onChange={(e) => setNEmail(e.target.value)}
+                    placeholder="name@zlc.demo" autoComplete="off"
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs text-gray-500">Temporary password (min 8 chars)</span>
+                  <input
+                    type="text" value={nPassword} onChange={(e) => setNPassword(e.target.value)}
+                    placeholder="set an initial password" autoComplete="new-password"
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs text-gray-500">Role</span>
+                  <select
+                    value={nRole}
+                    onChange={(e) => {
+                      const r = e.target.value as UserRole;
+                      setNRole(r);
+                      if (SCHOOL_SCOPED_ROLES.includes(r) && nSchool == null) setNSchool(schools[0]?.id ?? null);
+                    }}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                  >
+                    {USER_ROLES.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs text-gray-500">School</span>
+                  {nScoped ? (
+                    <select
+                      value={nSchool ?? ''}
+                      onChange={(e) => setNSchool(Number(e.target.value))}
+                      className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                    >
+                      {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  ) : (
+                    <div className="mt-1 px-3 py-1.5 text-sm text-gray-400 border border-transparent">All schools (role is cross-school)</div>
+                  )}
+                </label>
+              </div>
+              {addError && <p className="text-sm" style={{ color: '#c62828' }}>{addError}</p>}
+              <div className="flex items-center gap-2">
+                <button
+                  type="submit" disabled={creating}
+                  className="text-sm px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-60"
+                  style={{ background: NAVY }}
+                >
+                  {creating ? 'Creating…' : 'Create account'}
+                </button>
+                <button type="button" onClick={() => { resetAdd(); setShowAdd(false); }} className="text-sm px-3 py-1.5 rounded-lg border">
+                  Cancel
+                </button>
+                <span className="text-xs text-gray-400">The user signs in with this email &amp; password; they can change it later.</span>
+              </div>
+            </form>
+          )}
 
           <p className="text-xs text-gray-400">
             New sign-ins are provisioned server-side (they require a Supabase auth user). Roles determine
