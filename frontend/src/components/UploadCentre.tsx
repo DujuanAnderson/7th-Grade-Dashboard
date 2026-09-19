@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { Student } from '../lib/types';
-import { parseUpload, applyUpload, type Programme, type ParseResult } from '../lib/parsers';
+import { parseUpload, type Programme, type ParseResult } from '../lib/parsers';
+import { saveUpload } from '../lib/dataClient';
 import { NAVY, TEAL, STATUS, INK_MUTED } from '../lib/theme';
 
 interface HistoryItem {
@@ -12,15 +13,17 @@ interface HistoryItem {
 }
 
 export default function UploadCentre({
-  students, onApply, user,
+  students, onUploaded, userId, userName,
 }: {
   students: Student[];
-  onApply: (next: Student[]) => void;
-  user: string;
+  onUploaded: () => Promise<void> | void;
+  userId: string;
+  userName: string;
 }) {
   const [programme, setProgramme] = useState<Programme>('ffw');
   const [result, setResult] = useState<ParseResult | null>(null);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,20 +43,29 @@ export default function UploadCentre({
     }
   };
 
-  const confirm = () => {
+  const confirm = async () => {
     if (!result) return;
-    onApply(applyUpload(students, result));
-    setHistory((h) => [
-      {
-        fileName: result.fileName,
-        programme: result.programme,
-        date: new Date().toISOString().slice(0, 16).replace('T', ' '),
-        matched: result.matchedCount,
-        status: 'Applied',
-      },
-      ...h,
-    ]);
-    setResult(null);
+    setSaving(true);
+    setError('');
+    try {
+      await saveUpload(result, userId);
+      await onUploaded();
+      setHistory((h) => [
+        {
+          fileName: result.fileName,
+          programme: result.programme,
+          date: new Date().toISOString().slice(0, 16).replace('T', ' '),
+          matched: result.matchedCount,
+          status: 'Applied',
+        },
+        ...h,
+      ]);
+      setResult(null);
+    } catch (e: any) {
+      setError(e?.message ?? 'Could not save upload.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const chip = (label: string, n: number, tone: keyof typeof STATUS) => (
@@ -160,14 +172,14 @@ export default function UploadCentre({
                 Only the {result.matchedCount} matched row(s) will be applied. Unmatched rows are skipped for you to resolve.
               </span>
               <div className="flex gap-2">
-                <button onClick={() => setResult(null)} className="px-3 py-1.5 rounded-lg text-sm border border-gray-300">Cancel</button>
+                <button onClick={() => setResult(null)} disabled={saving} className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 disabled:opacity-50">Cancel</button>
                 <button
                   onClick={confirm}
-                  disabled={result.matchedCount === 0}
+                  disabled={result.matchedCount === 0 || saving}
                   className="px-3 py-1.5 rounded-lg text-sm text-white font-medium disabled:opacity-50"
                   style={{ background: TEAL }}
                 >
-                  Confirm &amp; apply {result.matchedCount} row(s)
+                  {saving ? 'Saving…' : `Confirm & apply ${result.matchedCount} row(s)`}
                 </button>
               </div>
             </div>
@@ -194,7 +206,7 @@ export default function UploadCentre({
                   <td className="py-2">{h.fileName}</td>
                   <td className="py-2">{h.programme === 'ffw' ? 'Fast ForWord' : 'Clear Math'}</td>
                   <td className="py-2 text-gray-500">{h.date}</td>
-                  <td className="py-2 text-gray-500">{user}</td>
+                  <td className="py-2 text-gray-500">{userName}</td>
                   <td className="py-2">{h.matched}</td>
                   <td className="py-2">{h.status}</td>
                 </tr>

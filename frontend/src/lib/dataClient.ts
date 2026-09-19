@@ -4,6 +4,7 @@ import type {
   Student, School, CurrentUser, RiskStatus, Mark, AttendanceEntry, Alert,
   UserProfile, UserRole,
 } from './types';
+import type { ParseResult } from './parsers';
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -44,6 +45,7 @@ export async function login(email: string, password: string): Promise<CurrentUse
 
   const role = (profile?.role as string) ?? (user.user_metadata?.role as string) ?? 'teacher';
   return {
+    id: user.id,
     email: user.email ?? email,
     name: nameFromEmail(user.email ?? email),
     role,
@@ -198,6 +200,51 @@ export async function getStudents(): Promise<Student[]> {
 export async function getAllStudents(): Promise<Student[]> {
   // Full cross-school population for the Administrator dashboard (RLS-scoped).
   return fetchStudents();
+}
+
+// ---------------------------------------------------------------------------
+// Upload Centre — persist a parsed Fast ForWord / Clear Math file
+//
+// Only matched rows are written. Each becomes one dated upload row (this
+// table is a time series — getStudents() picks the latest FFW row and folds
+// all Clear Math rows into the mastery trend), attributed to the uploading
+// user so RLS (ffw_insert / clearmath_insert) can check uploaded_by = caller
+// and the student is in the caller's school.
+// ---------------------------------------------------------------------------
+
+export async function saveUpload(result: ParseResult, uploadedBy: string): Promise<void> {
+  const matched = result.rows.filter((r) => r.status === 'matched');
+  if (matched.length === 0) return;
+  const uploadDate = new Date().toISOString().slice(0, 10);
+
+  if (result.programme === 'ffw') {
+    const rows = matched.map((r) => ({
+      student_id: r.matchedId,
+      upload_date: uploadDate,
+      uploaded_by: uploadedBy,
+      protocol: (r.mapped.protocol as string) || null,
+      completion_pct: r.mapped.completionPct,
+      points: r.mapped.points,
+      sessions: r.mapped.sessions,
+      last_login: (r.mapped.lastLogin as string) || null,
+      level_gain: r.mapped.levelGain,
+    }));
+    const { error } = await client().from('ffw_uploads').insert(rows);
+    if (error) throw new Error(error.message);
+  } else {
+    const rows = matched.map((r) => ({
+      student_id: r.matchedId,
+      upload_date: uploadDate,
+      uploaded_by: uploadedBy,
+      topic: (r.mapped.topic as string) || null,
+      score_pct: r.mapped.scorePct,
+      mastery_pct: r.mapped.masteryPct,
+      completion_pct: r.mapped.completionPct,
+      last_activity: (r.mapped.lastActivity as string) || null,
+    }));
+    const { error } = await client().from('clearmath_uploads').insert(rows);
+    if (error) throw new Error(error.message);
+  }
 }
 
 // ---------------------------------------------------------------------------

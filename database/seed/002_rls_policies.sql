@@ -38,13 +38,68 @@ ALTER TABLE assessments       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alerts            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_log         ENABLE ROW LEVEL SECURITY;
 
+-- One-time repair: on this project ffw_uploads.uploaded_by / clearmath_
+-- uploads.uploaded_by were left over from a pre-Supabase-Auth schema as
+-- INTEGER, instead of UUID REFERENCES profiles(id). That makes the insert
+-- policies below fail with "operator does not exist: integer = uuid". Every
+-- seed file inserts NULL for uploaded_by, so converting is lossless; this
+-- only runs (and only touches rows) if the column is still the old type.
+DO $$
+DECLARE
+    ffw_type TEXT;
+    cm_type  TEXT;
+    con      RECORD;
+BEGIN
+    SELECT data_type INTO ffw_type FROM information_schema.columns
+        WHERE table_name = 'ffw_uploads' AND column_name = 'uploaded_by';
+    SELECT data_type INTO cm_type FROM information_schema.columns
+        WHERE table_name = 'clearmath_uploads' AND column_name = 'uploaded_by';
+
+    IF ffw_type = 'integer' THEN
+        IF EXISTS (SELECT 1 FROM ffw_uploads WHERE uploaded_by IS NOT NULL) THEN
+            RAISE EXCEPTION 'ffw_uploads.uploaded_by has non-null integer values — resolve manually before converting to uuid';
+        END IF;
+        -- Drop whatever FK constraint the old integer column carries (it likely
+        -- points at a pre-migration integer id) — its old-typed reference is
+        -- what blocks the ALTER COLUMN TYPE below, regardless of its name.
+        FOR con IN
+            SELECT c.conname FROM pg_constraint c
+            JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY(c.conkey)
+            WHERE c.conrelid = 'ffw_uploads'::regclass AND c.contype = 'f' AND a.attname = 'uploaded_by'
+        LOOP
+            EXECUTE format('ALTER TABLE ffw_uploads DROP CONSTRAINT %I', con.conname);
+        END LOOP;
+        ALTER TABLE ffw_uploads ALTER COLUMN uploaded_by TYPE UUID USING NULL;
+        ALTER TABLE ffw_uploads ADD CONSTRAINT ffw_uploads_uploaded_by_fkey
+            FOREIGN KEY (uploaded_by) REFERENCES profiles(id);
+    END IF;
+
+    IF cm_type = 'integer' THEN
+        IF EXISTS (SELECT 1 FROM clearmath_uploads WHERE uploaded_by IS NOT NULL) THEN
+            RAISE EXCEPTION 'clearmath_uploads.uploaded_by has non-null integer values — resolve manually before converting to uuid';
+        END IF;
+        FOR con IN
+            SELECT c.conname FROM pg_constraint c
+            JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY(c.conkey)
+            WHERE c.conrelid = 'clearmath_uploads'::regclass AND c.contype = 'f' AND a.attname = 'uploaded_by'
+        LOOP
+            EXECUTE format('ALTER TABLE clearmath_uploads DROP CONSTRAINT %I', con.conname);
+        END LOOP;
+        ALTER TABLE clearmath_uploads ALTER COLUMN uploaded_by TYPE UUID USING NULL;
+        ALTER TABLE clearmath_uploads ADD CONSTRAINT clearmath_uploads_uploaded_by_fkey
+            FOREIGN KEY (uploaded_by) REFERENCES profiles(id);
+    END IF;
+END $$;
+
 -- Drop-then-create so this is re-runnable.
 DROP POLICY IF EXISTS schools_read         ON schools;
 DROP POLICY IF EXISTS profiles_self        ON profiles;
 DROP POLICY IF EXISTS profiles_self_update ON profiles;
 DROP POLICY IF EXISTS students_read        ON students;
 DROP POLICY IF EXISTS ffw_read             ON ffw_uploads;
+DROP POLICY IF EXISTS ffw_insert           ON ffw_uploads;
 DROP POLICY IF EXISTS clearmath_read       ON clearmath_uploads;
+DROP POLICY IF EXISTS clearmath_insert     ON clearmath_uploads;
 DROP POLICY IF EXISTS marks_read           ON teacher_marks;
 DROP POLICY IF EXISTS attendance_read      ON attendance_log;
 DROP POLICY IF EXISTS assessments_read     ON assessments;
@@ -71,6 +126,23 @@ CREATE POLICY ffw_read ON ffw_uploads FOR SELECT TO authenticated
 CREATE POLICY clearmath_read ON clearmath_uploads FOR SELECT TO authenticated
     USING (public.is_all_school_admin() OR student_id IN (
         SELECT id FROM students WHERE school_id = public.auth_school()));
+
+-- Upload Centre writes: a teacher/school_admin may insert rows for a student
+-- in their own school; all-school admins may insert for anyone. uploaded_by
+-- must be the caller, so an upload is always attributable.
+CREATE POLICY ffw_insert ON ffw_uploads FOR INSERT TO authenticated
+    WITH CHECK (
+        uploaded_by = auth.uid()
+        AND (public.is_all_school_admin() OR student_id IN (
+            SELECT id FROM students WHERE school_id = public.auth_school()))
+    );
+
+CREATE POLICY clearmath_insert ON clearmath_uploads FOR INSERT TO authenticated
+    WITH CHECK (
+        uploaded_by = auth.uid()
+        AND (public.is_all_school_admin() OR student_id IN (
+            SELECT id FROM students WHERE school_id = public.auth_school()))
+    );
 
 CREATE POLICY marks_read ON teacher_marks FOR SELECT TO authenticated
     USING (public.is_all_school_admin() OR student_id IN (

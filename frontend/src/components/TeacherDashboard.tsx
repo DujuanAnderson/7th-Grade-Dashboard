@@ -258,7 +258,7 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
         )}
 
         {tab === 'upload' && (
-          <UploadCentre students={students} onApply={setStudents} user={user.name} />
+          <UploadCentre students={students} onUploaded={load} userId={user.id} userName={user.name} />
         )}
         {tab === 'entry' && (
           <DataEntry students={students} onUpdate={setStudents} />

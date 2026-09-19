@@ -220,10 +220,27 @@ CREATE POLICY alerts_read ON alerts FOR SELECT TO authenticated
     USING (public.is_all_school_admin() OR student_id IN (
         SELECT id FROM students WHERE school_id = public.auth_school()));
 
--- NOTE: INSERT/UPDATE/DELETE policies (teacher data entry, uploads, alert
--- acknowledgement) still need to be written. Until then, writes must go through
--- the backend using the service key. audit_log has RLS enabled with no policy,
--- so it is service-key-only by design.
+-- Programme uploads (Upload Centre): a teacher/school_admin may insert rows
+-- for a student in their own school; all-school admins may insert for anyone.
+-- uploaded_by must be the caller, so an upload is always attributable.
+CREATE POLICY ffw_insert ON ffw_uploads FOR INSERT TO authenticated
+    WITH CHECK (
+        uploaded_by = auth.uid()
+        AND (public.is_all_school_admin() OR student_id IN (
+            SELECT id FROM students WHERE school_id = public.auth_school()))
+    );
+
+CREATE POLICY clearmath_insert ON clearmath_uploads FOR INSERT TO authenticated
+    WITH CHECK (
+        uploaded_by = auth.uid()
+        AND (public.is_all_school_admin() OR student_id IN (
+            SELECT id FROM students WHERE school_id = public.auth_school()))
+    );
+
+-- NOTE: Remaining INSERT/UPDATE/DELETE policies (teacher data entry, alert
+-- acknowledgement) still need to be written. Until then, those writes must go
+-- through the backend using the service key. audit_log has RLS enabled with
+-- no policy, so it is service-key-only by design.
 
 -- ---------------------------------------------------------------------------
 -- Seed sample data

@@ -1,6 +1,5 @@
 import * as XLSX from 'xlsx';
 import type { Student } from './types';
-import { computeRisk } from './compute';
 
 export type Programme = 'ffw' | 'clearmath';
 
@@ -117,24 +116,4 @@ export async function parseUpload(
     duplicateCount: rows.filter((r) => r.status === 'duplicate').length,
     rows,
   };
-}
-
-// Apply only the matched rows to the cohort (partial upload). Returns a new array.
-export function applyUpload(students: Student[], result: ParseResult): Student[] {
-  const byId = new Map(result.rows.filter((r) => r.status === 'matched').map((r) => [r.matchedId!, r]));
-  return students.map((s) => {
-    const row = byId.get(s.id);
-    if (!row) return s;
-    const next = { ...s };
-    if (result.programme === 'ffw') {
-      next.ffwCompletionPct = row.mapped.completionPct as number;
-      next.ffwProtocol = (row.mapped.protocol as string) || s.ffwProtocol;
-      if (row.mapped.lastLogin) next.ffwLastLogin = String(row.mapped.lastLogin);
-    } else {
-      next.mathMastery = row.mapped.masteryPct as number;
-      if (row.mapped.lastActivity) next.mathLastActivity = String(row.mapped.lastActivity);
-    }
-    next.riskStatus = computeRisk(next.ffwCompletionPct, next.mathMastery, next.attendanceRate);
-    return next;
-  });
 }
