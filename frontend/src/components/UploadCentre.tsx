@@ -6,7 +6,7 @@ import { NAVY, TEAL, STATUS, INK_MUTED } from '../lib/theme';
 
 const PROGRAMME_SITE: Record<Programme, { label: string; url: string }> = {
   ffw: { label: 'Fast ForWord', url: 'https://www.scilearn.com' },
-  clearmath: { label: 'Clear Math', url: 'https://play.clearmath.com/login' },
+  clearmath: { label: 'Clear Math', url: 'https://play.clearmath.com' },
 };
 
 interface HistoryItem {
