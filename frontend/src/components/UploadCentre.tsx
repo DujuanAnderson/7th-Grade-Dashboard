@@ -4,9 +4,9 @@ import { parseUpload, type Programme, type ParseResult } from '../lib/parsers';
 import { saveUpload } from '../lib/dataClient';
 import { NAVY, TEAL, STATUS, INK_MUTED } from '../lib/theme';
 
-const PROGRAMME_SITE: Record<Programme, { label: string; url: string }> = {
-  ffw: { label: 'Fast ForWord', url: 'https://www.scilearn.com' },
-  clearmath: { label: 'Clear Math', url: 'https://play.clearmath.com' },
+const PROGRAMME_SITE: Record<Programme, { label: string; url: string; embeddable: boolean }> = {
+  ffw: { label: 'Fast ForWord', url: 'https://www.scilearn.com', embeddable: true },
+  clearmath: { label: 'Clear Math', url: 'https://play.clearmath.com', embeddable: false },
 };
 
 interface HistoryItem {
@@ -142,17 +142,36 @@ export default function UploadCentre({
                 Open in new tab ↗
               </a>
             </div>
-            <iframe
-              key={programme}
-              src={PROGRAMME_SITE[programme].url}
-              title={`${PROGRAMME_SITE[programme].label} site`}
-              className="w-full flex-1"
-              style={{ minHeight: 280, border: 'none' }}
-              sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
-            />
-            <p className="text-[11px] text-gray-400 px-3 py-2 border-t border-gray-100">
-              If the page doesn&apos;t load here, the site may block embedding — use &quot;Open in new tab&quot; instead.
-            </p>
+            {PROGRAMME_SITE[programme].embeddable ? (
+              <>
+                <iframe
+                  key={programme}
+                  src={PROGRAMME_SITE[programme].url}
+                  title={`${PROGRAMME_SITE[programme].label} site`}
+                  className="w-full flex-1"
+                  style={{ minHeight: 280, border: 'none' }}
+                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+                />
+                <p className="text-[11px] text-gray-400 px-3 py-2 border-t border-gray-100">
+                  If the page doesn&apos;t load here, the site may block embedding — use &quot;Open in new tab&quot; instead.
+                </p>
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center" style={{ minHeight: 280, background: '#fafbfc' }}>
+                <p className="text-sm" style={{ color: INK_MUTED }}>
+                  {PROGRAMME_SITE[programme].label} doesn&apos;t allow embedding in other sites, so log in from its own page.
+                </p>
+                <a
+                  href={PROGRAMME_SITE[programme].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-white"
+                  style={{ background: TEAL }}
+                >
+                  Launch {PROGRAMME_SITE[programme].label} ↗
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
