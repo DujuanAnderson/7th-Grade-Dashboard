@@ -4,6 +4,11 @@ import { parseUpload, type Programme, type ParseResult } from '../lib/parsers';
 import { saveUpload } from '../lib/dataClient';
 import { NAVY, TEAL, STATUS, INK_MUTED } from '../lib/theme';
 
+const PROGRAMME_SITE: Record<Programme, { label: string; url: string }> = {
+  ffw: { label: 'Fast ForWord', url: 'https://www.scilearn.com' },
+  clearmath: { label: 'Clear Math', url: 'https://play.clearmath.com/login' },
+};
+
 interface HistoryItem {
   fileName: string;
   programme: Programme;
@@ -97,26 +102,58 @@ export default function UploadCentre({
           ))}
         </div>
 
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault(); setDragOver(false);
-            const f = e.dataTransfer.files?.[0];
-            if (f) handleFile(f);
-          }}
-          onClick={() => inputRef.current?.click()}
-          className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors"
-          style={{ borderColor: dragOver ? TEAL : '#d1d5db', background: dragOver ? '#f0faf9' : '#fafbfc' }}
-        >
-          <p className="text-sm" style={{ color: INK_MUTED }}>
-            <strong>Drag &amp; drop</strong> a {programme === 'ffw' ? 'Fast ForWord' : 'Clear Math'} export here, or click to browse
-          </p>
-          <p className="text-xs text-gray-400 mt-1">Accepts .csv and .xlsx</p>
-          <input
-            ref={inputRef} type="file" accept=".csv,.xlsx" className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ''; }}
-          />
+        <div className="grid gap-5 lg:grid-cols-2">
+          <div>
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault(); setDragOver(false);
+                const f = e.dataTransfer.files?.[0];
+                if (f) handleFile(f);
+              }}
+              onClick={() => inputRef.current?.click()}
+              className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors h-full flex flex-col items-center justify-center"
+              style={{ borderColor: dragOver ? TEAL : '#d1d5db', background: dragOver ? '#f0faf9' : '#fafbfc' }}
+            >
+              <p className="text-sm" style={{ color: INK_MUTED }}>
+                <strong>Drag &amp; drop</strong> a {programme === 'ffw' ? 'Fast ForWord' : 'Clear Math'} export here, or click to browse
+              </p>
+              <p className="text-xs text-gray-400 mt-1">Accepts .csv and .xlsx</p>
+              <input
+                ref={inputRef} type="file" accept=".csv,.xlsx" className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ''; }}
+              />
+            </div>
+          </div>
+
+          <div className="border border-gray-200 rounded-xl overflow-hidden flex flex-col">
+            <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+              <span className="text-xs font-medium" style={{ color: NAVY }}>
+                {PROGRAMME_SITE[programme].label} — log in to pull your export
+              </span>
+              <a
+                href={PROGRAMME_SITE[programme].url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium underline whitespace-nowrap ml-2"
+                style={{ color: TEAL }}
+              >
+                Open in new tab ↗
+              </a>
+            </div>
+            <iframe
+              key={programme}
+              src={PROGRAMME_SITE[programme].url}
+              title={`${PROGRAMME_SITE[programme].label} site`}
+              className="w-full flex-1"
+              style={{ minHeight: 280, border: 'none' }}
+              sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+            />
+            <p className="text-[11px] text-gray-400 px-3 py-2 border-t border-gray-100">
+              If the page doesn&apos;t load here, the site may block embedding — use &quot;Open in new tab&quot; instead.
+            </p>
+          </div>
         </div>
 
         {error && <p className="text-sm mt-3" style={{ color: STATUS['At Risk'].fg }}>{error}</p>}
