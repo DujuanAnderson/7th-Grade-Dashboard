@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 import { computeRisk, bandForRpi } from './compute';
 import type {
   Student, School, CurrentUser, RiskStatus, Mark, AttendanceEntry, Alert,
@@ -30,14 +30,9 @@ function nameFromEmail(email: string): string {
   return handle.replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export async function login(email: string, password: string): Promise<CurrentUser> {
-  const sb = client();
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-  const user = data.user;
-
-  // Role and school scope come from the user's profile row (RLS: self-readable).
-  const { data: profile } = await sb
+// Role and school scope come from the user's profile row (RLS: self-readable).
+async function buildCurrentUser(user: User): Promise<CurrentUser> {
+  const { data: profile } = await client()
     .from('profiles')
     .select('role, school_id')
     .eq('id', user.id)
@@ -46,12 +41,40 @@ export async function login(email: string, password: string): Promise<CurrentUse
   const role = (profile?.role as string) ?? (user.user_metadata?.role as string) ?? 'teacher';
   return {
     id: user.id,
-    email: user.email ?? email,
-    name: nameFromEmail(user.email ?? email),
+    email: user.email ?? '',
+    name: nameFromEmail(user.email ?? ''),
     role,
     schoolId: profile?.school_id ?? 0,
     cohortName: 'Grade 7 Cohort',
   };
+}
+
+export async function login(email: string, password: string): Promise<CurrentUser> {
+  const { data, error } = await client().auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return buildCurrentUser(data.user);
+}
+
+// Supabase persists the underlying session in localStorage across reloads;
+// this re-derives the app's CurrentUser (including role/school from
+// `profiles`) from that session so the user doesn't have to log in again.
+// Returns null if there's no valid session (or Supabase isn't configured).
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  if (!IS_CONFIGURED) return null;
+  const { data } = await client().auth.getSession();
+  const user = data.session?.user;
+  return user ? buildCurrentUser(user) : null;
+}
+
+// Notifies `cb` when the session ends from outside the app (token expiry,
+// revocation, sign-out in another tab) so the UI can fall back to the login
+// screen instead of showing a stale/broken session.
+export function onSignedOut(cb: () => void): () => void {
+  if (!supabase) return () => {};
+  const { data } = supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') cb();
+  });
+  return () => data.subscription.unsubscribe();
 }
 
 // Roles with cross-school administrator access (spec §3).
