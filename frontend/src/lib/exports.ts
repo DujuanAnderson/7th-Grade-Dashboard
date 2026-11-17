@@ -1,9 +1,9 @@
 import * as XLSX from 'xlsx';
 import type { Student, School } from './types';
 
-const NAVY = '#1e3a5f';
-const TEAL = '#2a9d8f';
-const GOLD = '#e9c46a';
+const GREEN = '#1b4332';
+const ACCENT = '#2f9e44';
+const ACCENT_LIGHT = '#95d5b2';
 
 const codeOf = (schools: School[], id: number) => schools.find((s) => s.id === id)?.code ?? '';
 
@@ -41,18 +41,18 @@ function openReport(title: string, bodyHtml: string) {
   <style>
     * { box-sizing: border-box; }
     body { font-family: Arial, Helvetica, sans-serif; color: #1f2937; margin: 0; padding: 0 0 48px; font-size: 11pt; }
-    .header { background: ${NAVY}; color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 14px; }
-    .header .logo { width: 40px; height: 40px; border-radius: 8px; background: ${TEAL}; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .header { background: ${GREEN}; color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 14px; }
+    .header .logo { width: 40px; height: 40px; border-radius: 8px; background: ${ACCENT}; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     .header h1 { font-size: 16pt; margin: 0; }
     .header p { margin: 2px 0 0; font-size: 10pt; opacity: .85; }
-    .rule { height: 4px; background: ${GOLD}; }
+    .rule { height: 4px; background: ${ACCENT_LIGHT}; }
     .content { padding: 24px 32px; }
-    h2 { color: ${NAVY}; font-size: 12pt; border-bottom: 2px solid ${GOLD}; padding-bottom: 4px; margin-top: 22px; }
+    h2 { color: ${GREEN}; font-size: 12pt; border-bottom: 2px solid ${ACCENT_LIGHT}; padding-bottom: 4px; margin-top: 22px; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10pt; }
-    th { background: ${NAVY}; color: #fff; text-align: left; padding: 6px 8px; }
+    th { background: ${GREEN}; color: #fff; text-align: left; padding: 6px 8px; }
     td { padding: 6px 8px; border-bottom: 1px solid #e5e7eb; }
     .kpi { display: inline-block; margin: 6px 18px 6px 0; }
-    .kpi .v { font-size: 15pt; font-weight: bold; color: ${NAVY}; }
+    .kpi .v { font-size: 15pt; font-weight: bold; color: ${GREEN}; }
     .kpi .l { font-size: 8pt; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
     .footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px 32px; font-size: 8pt; color: #6b7280; border-top: 1px solid #e5e7eb; background: #fff; }
     @media print { .noprint { display: none; } }
@@ -61,7 +61,7 @@ function openReport(title: string, bodyHtml: string) {
     <div class="rule"></div>
     <div class="content">${bodyHtml}</div>
     <div class="footer">Zeal Learning Center | Confidential &nbsp;·&nbsp; Generated ${new Date().toISOString().slice(0, 10)}</div>
-    <div class="noprint" style="padding:16px 32px;"><button onclick="window.print()" style="background:${NAVY};color:#fff;border:0;padding:10px 18px;border-radius:8px;font-size:11pt;cursor:pointer;">Print / Save as PDF</button></div>
+    <div class="noprint" style="padding:16px 32px;"><button onclick="window.print()" style="background:${GREEN};color:#fff;border:0;padding:10px 18px;border-radius:8px;font-size:11pt;cursor:pointer;">Print / Save as PDF</button></div>
   </body></html>`);
   w.document.close();
 }

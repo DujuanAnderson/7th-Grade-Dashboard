@@ -2,7 +2,7 @@ import {
   BarChart, Bar, Cell, LabelList, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line, Legend,
 } from 'recharts';
-import { BAND_COLOR, GRID, AXIS, INK_MUTED, TEAL, NAVY } from '../lib/theme';
+import { BAND_COLOR, GRID, AXIS, INK_MUTED, ACCENT, GREEN } from '../lib/theme';
 
 const axisTick = { fontSize: 12, fill: INK_MUTED };
 
@@ -50,8 +50,8 @@ export function MasteryTrendChart({
           formatter={(v: number) => [`${v}%`, '']}
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
-        <Line type="monotone" dataKey="classAvg" name="Class average" stroke={TEAL} strokeWidth={2} dot={{ r: 3 }} />
-        <Line type="monotone" dataKey="benchmark" name="Grade benchmark" stroke={NAVY} strokeWidth={2} strokeDasharray="5 4" dot={false} />
+        <Line type="monotone" dataKey="classAvg" name="Class average" stroke={ACCENT} strokeWidth={2} dot={{ r: 3 }} />
+        <Line type="monotone" dataKey="benchmark" name="Grade benchmark" stroke={GREEN} strokeWidth={2} strokeDasharray="5 4" dot={false} />
       </LineChart>
     </ResponsiveContainer>
   );

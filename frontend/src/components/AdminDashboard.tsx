@@ -4,9 +4,10 @@ import {
   ScatterChart, Scatter, ZAxis, Cell, LabelList,
 } from 'recharts';
 import type { CurrentUser, Student, School, RiskStatus } from '../lib/types';
+import { roleLabel } from '../lib/types';
 import { getAllStudents, getSchools, logout } from '../lib/dataClient';
 import { computeRisk } from '../lib/compute';
-import { NAVY, TEAL, GOLD, STATUS, GRID, AXIS, INK_MUTED, schoolColor } from '../lib/theme';
+import { GREEN, ACCENT, ACCENT_LIGHT, STATUS, GRID, AXIS, INK_MUTED, schoolColor } from '../lib/theme';
 import StudentProfileCard from './StudentProfileCard';
 import ManageUsers from './ManageUsers';
 import NotificationBell from './NotificationBell';
@@ -125,11 +126,11 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
 
   return (
     <div className="min-h-screen">
-      <header className="text-white" style={{ background: NAVY }}>
+      <header className="text-white" style={{ background: GREEN }}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold" style={{ background: TEAL }}>ZLC</div>
-            <span className="font-semibold">7th Grade Academy — Administrator</span>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold" style={{ background: ACCENT }}>ZLC</div>
+            <span className="font-semibold">7th Grade Academy</span>
           </div>
           <div className="flex items-center gap-4 text-sm">
             <NotificationBell
@@ -139,7 +140,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
               onOpen={(id) => setSelected(students.find((s) => s.id === id) ?? null)}
             />
             <span className="hidden sm:inline opacity-80">{user.name}</span>
-            <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: GOLD, color: NAVY }}>{user.role.replace(/_/g, ' ')}</span>
+            <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: ACCENT_LIGHT, color: GREEN }}>{roleLabel(user.role)}</span>
             <button onClick={() => setManageUsers(true)} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Manage Users</button>
             <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Logout</button>
           </div>
@@ -156,14 +157,14 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
           <div className="bg-white rounded-xl border p-6" style={{ borderColor: '#f0c0c0' }}>
             <p className="font-medium mb-1" style={{ color: '#c62828' }}>Couldn’t load data</p>
             <p className="text-sm text-gray-600 mb-3">{error}</p>
-            <button onClick={load} className="text-sm text-white px-3 py-1.5 rounded-lg" style={{ background: NAVY }}>
+            <button onClick={load} className="text-sm text-white px-3 py-1.5 rounded-lg" style={{ background: GREEN }}>
               Retry
             </button>
           </div>
         )}
         {!loading && !error && students.length === 0 && (
           <div className="bg-white rounded-xl border border-gray-200 p-10 text-center">
-            <p className="font-medium mb-1" style={{ color: NAVY }}>No data to display</p>
+            <p className="font-medium mb-1" style={{ color: GREEN }}>No data to display</p>
             <p className="text-sm text-gray-500">
               No student records are visible for your account yet. Once schools load their
               cohorts into the database they will appear here automatically.
@@ -195,13 +196,13 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
               key={school.id}
               onClick={() => setSchoolFilter((cur) => (cur === school.id ? 0 : school.id))}
               className="text-left bg-white rounded-xl border p-4 transition-shadow hover:shadow-md"
-              style={{ borderColor: schoolFilter === school.id ? TEAL : '#e5e7eb', borderWidth: schoolFilter === school.id ? 2 : 1 }}
+              style={{ borderColor: schoolFilter === school.id ? ACCENT : '#e5e7eb', borderWidth: schoolFilter === school.id ? 2 : 1 }}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="w-2.5 h-8 rounded" style={{ background: schoolColor(school.id) }} />
                 <RiskBadge status={kpis.risk} />
               </div>
-              <div className="font-semibold text-sm" style={{ color: NAVY }}>{school.name}</div>
+              <div className="font-semibold text-sm" style={{ color: GREEN }}>{school.name}</div>
               <div className="text-xs text-gray-400 mb-3">{school.code} · {kpis.enrolled} students</div>
               <div className="grid grid-cols-2 gap-y-2 text-sm">
                 <div><div className="text-gray-400 text-xs">Literacy benchmark</div><div className="font-semibold">{kpis.literacyBenchmarkPct}%</div></div>
@@ -216,7 +217,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
         {/* Cross-school comparison */}
         <div className="grid lg:grid-cols-2 gap-4">
           <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="font-semibold mb-1" style={{ color: NAVY }}>Literacy Benchmark Attainment by School</h2>
+            <h2 className="font-semibold mb-1" style={{ color: GREEN }}>Literacy Benchmark Attainment by School</h2>
             <p className="text-xs text-gray-400 mb-2">% of students at or above grade level</p>
             <ResponsiveContainer width="100%" height={230}>
               <BarChart data={benchmarkData} margin={{ top: 20, right: 12, left: 0, bottom: 4 }} barCategoryGap="45%">
@@ -233,7 +234,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="font-semibold mb-1" style={{ color: NAVY }}>Programme KPIs by School</h2>
+            <h2 className="font-semibold mb-1" style={{ color: GREEN }}>Programme KPIs by School</h2>
             <p className="text-xs text-gray-400 mb-2">Average FFW completion vs. Clear Math mastery</p>
             <ResponsiveContainer width="100%" height={230}>
               <BarChart data={kpiBySchool} margin={{ top: 12, right: 12, left: 0, bottom: 4 }} barCategoryGap="30%" barGap={2}>
@@ -242,8 +243,8 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
                 <YAxis domain={[0, 100]} width={30} tick={axisTick} tickLine={false} axisLine={false} />
                 <Tooltip cursor={{ fill: 'rgba(30,58,95,0.05)' }} formatter={(v: number) => [`${v}%`, '']} contentStyle={{ borderRadius: 8, border: `1px solid ${AXIS}`, fontSize: 13 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="FFW" name="FFW completion" fill={TEAL} barSize={12} maxBarSize={14} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Mastery" name="Math mastery" fill={NAVY} barSize={12} maxBarSize={14} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="FFW" name="FFW completion" fill={ACCENT} barSize={12} maxBarSize={14} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Mastery" name="Math mastery" fill={GREEN} barSize={12} maxBarSize={14} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -251,16 +252,16 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
 
         {/* Scatter */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h2 className="font-semibold mb-1" style={{ color: NAVY }}>FFW Completion vs. Reading-Level Gain</h2>
+          <h2 className="font-semibold mb-1" style={{ color: GREEN }}>FFW Completion vs. Reading-Level Gain</h2>
           <p className="text-xs text-gray-400 mb-2">One dot per student, coloured by school</p>
-          <ResponsiveContainer width="100%" height={300}>
-            <ScatterChart margin={{ top: 12, right: 16, left: 0, bottom: 8 }}>
+          <ResponsiveContainer width="100%" height={320}>
+            <ScatterChart margin={{ top: 32, right: 16, left: 0, bottom: 16 }}>
               <CartesianGrid stroke={GRID} />
               <XAxis type="number" dataKey="ffw" name="FFW %" domain={[0, 100]} tick={axisTick} tickLine={false} axisLine={{ stroke: AXIS }} label={{ value: 'FFW completion %', position: 'insideBottom', offset: -4, fontSize: 12, fill: INK_MUTED }} />
               <YAxis type="number" dataKey="gain" name="Reading gain" tick={axisTick} tickLine={false} axisLine={false} width={34} label={{ value: 'RPI gain', angle: -90, position: 'insideLeft', fontSize: 12, fill: INK_MUTED }} />
               <ZAxis range={[55, 55]} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} formatter={(v: number, n: string) => [n === 'FFW %' ? `${v}%` : `+${v}`, n]} contentStyle={{ borderRadius: 8, border: `1px solid ${AXIS}`, fontSize: 13 }} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: 12, paddingBottom: 12 }} />
               {scatterBySchool.map(({ school, points }) => (
                 <Scatter key={school.id} name={school.code} data={points} fill={schoolColor(school.id)} fillOpacity={0.8} />
               ))}
@@ -270,7 +271,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
 
         {/* Sortable KPI table */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100"><h2 className="font-semibold" style={{ color: NAVY }}>All Schools — KPI Summary</h2></div>
+          <div className="px-4 py-3 border-b border-gray-100"><h2 className="font-semibold" style={{ color: GREEN }}>All Schools — KPI Summary</h2></div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -288,7 +289,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
               <tbody>
                 {sortedTable.map(({ school, kpis }) => (
                   <tr key={school.id} className="border-b border-gray-50">
-                    <td className="py-2.5 px-4 font-medium" style={{ color: NAVY }}>
+                    <td className="py-2.5 px-4 font-medium" style={{ color: GREEN }}>
                       <span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full" style={{ background: schoolColor(school.id) }} />{school.name}</span>
                     </td>
                     <td className="py-2.5 px-4">{kpis.enrolled}</td>
@@ -307,7 +308,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
         {/* Programme alert lists */}
         <div className="grid lg:grid-cols-2 gap-4">
           <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="font-semibold mb-1" style={{ color: NAVY }}>FFW Inactivity (5+ days)</h2>
+            <h2 className="font-semibold mb-1" style={{ color: GREEN }}>FFW Inactivity (5+ days)</h2>
             <p className="text-xs text-gray-400 mb-3">{inactivity.length} student(s) in scope</p>
             <div className="max-h-56 overflow-y-auto divide-y divide-gray-50">
               {inactivity.length === 0 && <p className="text-sm text-gray-400">None.</p>}
@@ -321,7 +322,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="font-semibold mb-1" style={{ color: NAVY }}>Clear Math Below 70% Mastery</h2>
+            <h2 className="font-semibold mb-1" style={{ color: GREEN }}>Clear Math Below 70% Mastery</h2>
             <p className="text-xs text-gray-400 mb-3">{belowMastery.length} student(s) in scope</p>
             <div className="max-h-56 overflow-y-auto divide-y divide-gray-50">
               {belowMastery.length === 0 && <p className="text-sm text-gray-400">None.</p>}
@@ -337,13 +338,13 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
 
         {/* Reports & Export */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h2 className="font-semibold mb-1" style={{ color: NAVY }}>Reports &amp; Export</h2>
+          <h2 className="font-semibold mb-1" style={{ color: GREEN }}>Reports &amp; Export</h2>
           <p className="text-xs text-gray-400 mb-3">Generate branded reports or export the data in scope.</p>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => printCrossSchoolReport(students, schools)} className="px-3 py-2 rounded-lg text-sm text-white font-medium" style={{ background: NAVY }}>
+            <button onClick={() => printCrossSchoolReport(students, schools)} className="px-3 py-2 rounded-lg text-sm text-white font-medium" style={{ background: GREEN }}>
               Cross-School Report (PDF)
             </button>
-            <button onClick={() => exportRosterXlsx(inScope, schools, 'zlc-raw-data.xlsx')} className="px-3 py-2 rounded-lg text-sm font-medium border" style={{ color: NAVY, borderColor: '#d1d5db' }}>
+            <button onClick={() => exportRosterXlsx(inScope, schools, 'zlc-raw-data.xlsx')} className="px-3 py-2 rounded-lg text-sm font-medium border" style={{ color: GREEN, borderColor: '#d1d5db' }}>
               Raw Data Export (Excel)
             </button>
           </div>
@@ -352,7 +353,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
         {/* Student drill-down */}
         <div className="bg-white rounded-xl border border-gray-200">
           <div className="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100">
-            <h2 className="font-semibold" style={{ color: NAVY }}>Student Roster</h2>
+            <h2 className="font-semibold" style={{ color: GREEN }}>Student Roster</h2>
             <select value={riskFilter} onChange={(e) => setRiskFilter(e.target.value as any)} className="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
               <option value="All">All risk</option><option>On Track</option><option>Needs Attention</option><option>At Risk</option>
             </select>
@@ -368,7 +369,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
               <tbody>
                 {inScope.map((s) => (
                   <tr key={s.id} onClick={() => setSelected(s)} className="border-b border-gray-50 hover:bg-gray-50 cursor-pointer">
-                    <td className="py-2.5 px-4 font-medium" style={{ color: NAVY }}>{s.firstName} {s.lastName}</td>
+                    <td className="py-2.5 px-4 font-medium" style={{ color: GREEN }}>{s.firstName} {s.lastName}</td>
                     <td className="py-2.5 px-4 text-gray-500">{schoolOf(s.schoolId)?.code}</td>
                     <td className="py-2.5 px-4">{s.readingBand}</td>
                     <td className="py-2.5 px-4">{s.ffwCompletionPct}%</td>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Student, AttendanceEntry } from '../lib/types';
 import { computeRisk } from '../lib/compute';
-import { NAVY, TEAL, STATUS } from '../lib/theme';
+import { GREEN, ACCENT, STATUS } from '../lib/theme';
 
 const SUBJECTS = [
   'English Language Arts', 'Mathematics', 'General Science',
@@ -83,7 +83,7 @@ export default function DataEntry({
     <div className="space-y-5">
       {/* Subject / mark bulk entry */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h2 className="font-semibold mb-1" style={{ color: NAVY }}>Subject Area Entry — Bulk Marks</h2>
+        <h2 className="font-semibold mb-1" style={{ color: GREEN }}>Subject Area Entry — Bulk Marks</h2>
         <p className="text-xs text-gray-400 mb-4">One row per student. Leave a score blank to skip that student.</p>
 
         <div className="grid sm:grid-cols-3 gap-3 mb-4">
@@ -126,8 +126,8 @@ export default function DataEntry({
         </div>
 
         <div className="flex items-center gap-3 mt-3">
-          <button onClick={saveMarks} className="px-4 py-2 rounded-lg text-sm text-white font-medium" style={{ background: NAVY }}>Save marks</button>
-          {markMsg && <span className="text-sm" style={{ color: TEAL }}>{markMsg}</span>}
+          <button onClick={saveMarks} className="px-4 py-2 rounded-lg text-sm text-white font-medium" style={{ background: GREEN }}>Save marks</button>
+          {markMsg && <span className="text-sm" style={{ color: ACCENT }}>{markMsg}</span>}
         </div>
       </div>
 
@@ -135,7 +135,7 @@ export default function DataEntry({
       <div className="bg-white rounded-xl border border-gray-200 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="font-semibold" style={{ color: NAVY }}>Attendance &amp; Engagement Log</h2>
+            <h2 className="font-semibold" style={{ color: GREEN }}>Attendance &amp; Engagement Log</h2>
             <p className="text-xs text-gray-400">Mark each student for the session.</p>
           </div>
           <div>
@@ -177,8 +177,8 @@ export default function DataEntry({
         </div>
 
         <div className="flex items-center gap-3 mt-3">
-          <button onClick={saveAttendance} className="px-4 py-2 rounded-lg text-sm text-white font-medium" style={{ background: NAVY }}>Save attendance</button>
-          {attMsg && <span className="text-sm" style={{ color: TEAL }}>{attMsg}</span>}
+          <button onClick={saveAttendance} className="px-4 py-2 rounded-lg text-sm text-white font-medium" style={{ background: GREEN }}>Save attendance</button>
+          {attMsg && <span className="text-sm" style={{ color: ACCENT }}>{attMsg}</span>}
         </div>
       </div>
     </div>

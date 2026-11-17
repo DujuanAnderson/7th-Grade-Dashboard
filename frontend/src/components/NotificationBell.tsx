@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { EngineAlert } from '../lib/alerts';
-import { NAVY, STATUS } from '../lib/theme';
+import { GREEN, STATUS } from '../lib/theme';
 
 export default function NotificationBell({
   alerts, acknowledged, onAcknowledge, onOpen,
@@ -21,7 +21,10 @@ export default function NotificationBell({
         aria-label="Notifications"
         title="Alerts"
       >
-        <span aria-hidden>🔔</span>
+        <svg aria-hidden width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 8a6 6 0 1 1 12 0c0 3.2 1.2 5.3 2 6.5.4.6 0 1.5-.8 1.5H4.8c-.8 0-1.2-.9-.8-1.5.8-1.2 2-3.3 2-6.5Z" />
+          <path d="M9.5 19a2.5 2.5 0 0 0 5 0" />
+        </svg>
         {active.length > 0 && (
           <span
             className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-bold flex items-center justify-center text-white"
@@ -37,7 +40,7 @@ export default function NotificationBell({
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 mt-2 w-96 max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-50 text-gray-800">
             <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-              <span className="font-semibold" style={{ color: NAVY }}>Notification Centre</span>
+              <span className="font-semibold" style={{ color: GREEN }}>Notification Centre</span>
               <span className="text-xs text-gray-400">{active.length} active</span>
             </div>
             {alerts.length === 0 && <p className="p-4 text-sm text-gray-400">No alerts triggered.</p>}
@@ -51,7 +54,7 @@ export default function NotificationBell({
                       <span className="mt-1 w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.dot }} />
                       <div className="flex-1">
                         <div className="text-sm font-medium">{a.type}</div>
-                        <button className="text-xs underline" style={{ color: NAVY }} onClick={() => { onOpen(a.studentId); setOpen(false); }}>
+                        <button className="text-xs underline" style={{ color: GREEN }} onClick={() => { onOpen(a.studentId); setOpen(false); }}>
                           {a.studentName}
                         </button>
                         <div className="text-xs text-gray-500">{a.detail}</div>

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import type { Student } from '../lib/types';
 import { parseUpload, type Programme, type ParseResult } from '../lib/parsers';
 import { saveUpload } from '../lib/dataClient';
-import { NAVY, TEAL, STATUS, INK_MUTED } from '../lib/theme';
+import { GREEN, ACCENT, STATUS, INK_MUTED } from '../lib/theme';
 
 const PROGRAMME_SITE: Record<Programme, { label: string; url: string; embeddable: boolean }> = {
   ffw: { label: 'Fast ForWord', url: 'https://www.scilearn.com', embeddable: true },
@@ -82,7 +82,7 @@ export default function UploadCentre({
   return (
     <div className="space-y-5">
       <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h2 className="font-semibold mb-1" style={{ color: NAVY }}>Upload Centre</h2>
+        <h2 className="font-semibold mb-1" style={{ color: GREEN }}>Upload Centre</h2>
         <p className="text-xs text-gray-400 mb-4">
           Upload Fast ForWord or Clear Math exports (CSV / XLSX). Files are parsed and validated before anything is applied.
         </p>
@@ -94,8 +94,8 @@ export default function UploadCentre({
               onClick={() => { setProgramme(p); setResult(null); }}
               className="px-3 py-1.5 rounded-lg text-sm font-medium border"
               style={programme === p
-                ? { background: NAVY, color: 'white', borderColor: NAVY }
-                : { color: NAVY, borderColor: '#d1d5db' }}
+                ? { background: GREEN, color: 'white', borderColor: GREEN }
+                : { color: GREEN, borderColor: '#d1d5db' }}
             >
               {p === 'ffw' ? 'Fast ForWord' : 'Clear Math'}
             </button>
@@ -114,7 +114,7 @@ export default function UploadCentre({
               }}
               onClick={() => inputRef.current?.click()}
               className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors h-full flex flex-col items-center justify-center"
-              style={{ borderColor: dragOver ? TEAL : '#d1d5db', background: dragOver ? '#f0faf9' : '#fafbfc' }}
+              style={{ borderColor: dragOver ? ACCENT : '#d1d5db', background: dragOver ? '#eef9f1' : '#fafbfc' }}
             >
               <p className="text-sm" style={{ color: INK_MUTED }}>
                 <strong>Drag &amp; drop</strong> a {programme === 'ffw' ? 'Fast ForWord' : 'Clear Math'} export here, or click to browse
@@ -129,7 +129,7 @@ export default function UploadCentre({
 
           <div className="border border-gray-200 rounded-xl overflow-hidden flex flex-col">
             <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-              <span className="text-xs font-medium" style={{ color: NAVY }}>
+              <span className="text-xs font-medium" style={{ color: GREEN }}>
                 {PROGRAMME_SITE[programme].label} — log in to pull your export
               </span>
               <a
@@ -137,7 +137,7 @@ export default function UploadCentre({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs font-medium underline whitespace-nowrap ml-2"
-                style={{ color: TEAL }}
+                style={{ color: ACCENT }}
               >
                 Open in new tab ↗
               </a>
@@ -166,7 +166,7 @@ export default function UploadCentre({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-                  style={{ background: TEAL }}
+                  style={{ background: ACCENT }}
                 >
                   Launch {PROGRAMME_SITE[programme].label} ↗
                 </a>
@@ -181,7 +181,7 @@ export default function UploadCentre({
           <div className="mt-5 border border-gray-200 rounded-lg overflow-hidden">
             <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
               <div className="flex flex-wrap items-center gap-2 justify-between">
-                <span className="text-sm font-medium" style={{ color: NAVY }}>
+                <span className="text-sm font-medium" style={{ color: GREEN }}>
                   {result.fileName} — {result.total} rows
                 </span>
                 <div className="flex gap-2">
@@ -233,7 +233,7 @@ export default function UploadCentre({
                   onClick={confirm}
                   disabled={result.matchedCount === 0 || saving}
                   className="px-3 py-1.5 rounded-lg text-sm text-white font-medium disabled:opacity-50"
-                  style={{ background: TEAL }}
+                  style={{ background: ACCENT }}
                 >
                   {saving ? 'Saving…' : `Confirm & apply ${result.matchedCount} row(s)`}
                 </button>
@@ -244,7 +244,7 @@ export default function UploadCentre({
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h3 className="font-semibold mb-3" style={{ color: NAVY }}>Upload History</h3>
+        <h3 className="font-semibold mb-3" style={{ color: GREEN }}>Upload History</h3>
         {history.length === 0 ? (
           <p className="text-sm text-gray-400">No uploads yet this session.</p>
         ) : (

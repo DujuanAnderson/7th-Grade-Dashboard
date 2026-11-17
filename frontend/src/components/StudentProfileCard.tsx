@@ -2,13 +2,13 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import type { Student, School } from '../lib/types';
-import { NAVY, TEAL, STATUS, BAND_COLOR, GRID, AXIS, INK_MUTED } from '../lib/theme';
+import { GREEN, ACCENT, STATUS, BAND_COLOR, GRID, AXIS, INK_MUTED } from '../lib/theme';
 import { printStudentReport } from '../lib/exports';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
-      <div className="px-4 py-2 text-sm font-semibold text-white" style={{ background: NAVY }}>{title}</div>
+      <div className="px-4 py-2 text-sm font-semibold text-white" style={{ background: GREEN }}>{title}</div>
       <div className="p-4">{children}</div>
     </div>
   );
@@ -18,7 +18,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <div className="text-xs uppercase tracking-wide text-gray-400">{label}</div>
-      <div className="text-lg font-semibold" style={{ color: NAVY }}>{value}</div>
+      <div className="text-lg font-semibold" style={{ color: GREEN }}>{value}</div>
     </div>
   );
 }
@@ -34,7 +34,7 @@ export default function StudentProfileCard({
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4"
-      style={{ background: 'rgba(21,43,70,0.55)' }}
+      style={{ background: 'rgba(16,41,29,0.55)' }}
       onClick={onClose}
     >
       <div
@@ -42,7 +42,7 @@ export default function StudentProfileCard({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 rounded-t-2xl text-white flex justify-between items-start" style={{ background: NAVY }}>
+        <div className="p-6 rounded-t-2xl text-white flex justify-between items-start" style={{ background: GREEN }}>
           <div>
             <h2 className="text-2xl font-bold">{student.firstName} {student.lastName}</h2>
             <p className="text-sm opacity-80">
@@ -98,7 +98,7 @@ export default function StudentProfileCard({
                 <XAxis dataKey="week" tick={{ fontSize: 12, fill: INK_MUTED }} tickLine={false} axisLine={{ stroke: AXIS }} />
                 <YAxis domain={[0, 100]} width={30} tick={{ fontSize: 12, fill: INK_MUTED }} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(v: number) => [`${v}%`, 'Mastery']} contentStyle={{ borderRadius: 8, border: `1px solid ${AXIS}`, fontSize: 13 }} />
-                <Line type="monotone" dataKey="mastery" stroke={TEAL} strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="mastery" stroke={ACCENT} strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </Section>

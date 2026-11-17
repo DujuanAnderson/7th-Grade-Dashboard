@@ -1,9 +1,11 @@
-// ZLC / STMC brand palette (spec §9: navy, teal, gold) + reserved status colors.
-export const NAVY = '#1e3a5f';
-export const NAVY_DARK = '#152b46';
-export const TEAL = '#2a9d8f';
-export const GOLD = '#e9c46a';
-export const GOLD_DARK = '#c9a227';
+// ZLC / STMC brand palette — consistent green + white, with status colors
+// reserved for On Track / Needs Attention / At Risk and never reused as a
+// chart "series color".
+export const GREEN = '#1b4332';
+export const GREEN_DARK = '#10291d';
+export const ACCENT = '#2f9e44';
+export const ACCENT_LIGHT = '#95d5b2';
+export const ACCENT_LIGHT_DARK = '#52b788';
 
 // Status colors are RESERVED for On Track / Needs Attention / At Risk and are
 // never reused as a chart "series color".
@@ -17,15 +19,15 @@ export const STATUS = {
 export const BAND_COLOR: Record<string, string> = {
   Below: '#c62828',
   Approaching: '#e0a100',
-  At: TEAL,
+  At: ACCENT,
   Above: '#2e7d32',
 };
 
-// Categorical palette for the 4 schools (validated: passes CVD + lightness +
-// normal-vision checks). Assigned by school id in FIXED order — color follows
-// the school entity, never its rank. The amber's low surface-contrast is
-// covered by the always-present legend labels + KPI table view.
-export const SCHOOL_COLORS = ['#3a6ea5', '#2a9d8f', '#e0a030', '#9b5bb0'];
+// Categorical palette for the 4 schools — shades within the green brand
+// family, distinguished by lightness so series stay consistent with the
+// rest of the UI. Assigned by school id in FIXED order — color follows
+// the school entity, never its rank. Always paired with legend/table labels.
+export const SCHOOL_COLORS = [GREEN, ACCENT, '#74c69d', '#52796f'];
 export function schoolColor(schoolId: number): string {
   return SCHOOL_COLORS[(schoolId - 1) % SCHOOL_COLORS.length];
 }

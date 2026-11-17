@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CurrentUser, School, UserProfile, UserRole } from '../lib/types';
 import { USER_ROLES, SCHOOL_SCOPED_ROLES, roleLabel } from '../lib/types';
 import { getUsers, updateUser, deleteUser, createUser } from '../lib/dataClient';
-import { NAVY, TEAL, GOLD, INK_MUTED, schoolColor } from '../lib/theme';
+import { GREEN, ACCENT, ACCENT_LIGHT, INK_MUTED, schoolColor } from '../lib/theme';
 
 function RolePill({ role }: { role: UserRole }) {
   const allSchool = !SCHOOL_SCOPED_ROLES.includes(role);
   return (
     <span
       className="px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
-      style={{ background: allSchool ? '#eef2f7' : '#f4f6f8', color: allSchool ? NAVY : INK_MUTED }}
+      style={{ background: allSchool ? '#eef2f7' : '#f4f6f8', color: allSchool ? GREEN : INK_MUTED }}
     >
       {roleLabel(role)}
     </span>
@@ -140,12 +140,12 @@ export default function ManageUsers({
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4"
-      style={{ background: 'rgba(21,43,70,0.55)' }}
+      style={{ background: 'rgba(16,41,29,0.55)' }}
       onClick={onClose}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl my-6" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="p-6 rounded-t-2xl text-white flex justify-between items-start" style={{ background: NAVY }}>
+        <div className="p-6 rounded-t-2xl text-white flex justify-between items-start" style={{ background: GREEN }}>
           <div>
             <h2 className="text-2xl font-bold">Manage Users</h2>
             <p className="text-sm opacity-80">
@@ -166,26 +166,26 @@ export default function ManageUsers({
             <button
               onClick={load}
               className="text-sm px-3 py-1.5 rounded-lg border font-medium"
-              style={{ color: NAVY, borderColor: '#d1d5db' }}
+              style={{ color: GREEN, borderColor: '#d1d5db' }}
             >
               Refresh
             </button>
             <button
               onClick={() => { setShowAdd((v) => !v); setAddError(null); setAddNotice(null); }}
               className="text-sm px-3 py-1.5 rounded-lg text-white font-medium"
-              style={{ background: TEAL }}
+              style={{ background: ACCENT }}
             >
               {showAdd ? 'Close' : '+ Add User'}
             </button>
           </div>
 
           {addNotice && !showAdd && (
-            <p className="text-sm" style={{ color: TEAL }}>{addNotice}</p>
+            <p className="text-sm" style={{ color: ACCENT }}>{addNotice}</p>
           )}
 
           {showAdd && (
             <form onSubmit={submitAdd} className="rounded-xl border border-gray-200 p-4 space-y-3" style={{ background: '#fafbfc' }}>
-              <div className="font-semibold text-sm" style={{ color: NAVY }}>New account</div>
+              <div className="font-semibold text-sm" style={{ color: GREEN }}>New account</div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs text-gray-500">Email</span>
@@ -237,7 +237,7 @@ export default function ManageUsers({
                 <button
                   type="submit" disabled={creating}
                   className="text-sm px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-60"
-                  style={{ background: NAVY }}
+                  style={{ background: GREEN }}
                 >
                   {creating ? 'Creating…' : 'Create account'}
                 </button>
@@ -251,7 +251,7 @@ export default function ManageUsers({
 
           <p className="text-xs text-gray-400">
             New sign-ins are provisioned server-side (they require a Supabase auth user). Roles determine
-            access: <span style={{ color: NAVY }}>all-school</span> roles see every school; School Admin and
+            access: <span style={{ color: GREEN }}>all-school</span> roles see every school; School Admin and
             Teacher are scoped to one school.
           </p>
 
@@ -260,7 +260,7 @@ export default function ManageUsers({
           {error && !loading && (
             <div className="rounded-lg border p-4" style={{ borderColor: '#f0c0c0' }}>
               <p className="text-sm font-medium mb-2" style={{ color: '#c62828' }}>{error}</p>
-              <button onClick={load} className="text-sm text-white px-3 py-1.5 rounded-lg" style={{ background: NAVY }}>Retry</button>
+              <button onClick={load} className="text-sm text-white px-3 py-1.5 rounded-lg" style={{ background: GREEN }}>Retry</button>
             </div>
           )}
 
@@ -288,9 +288,9 @@ export default function ManageUsers({
                       return (
                         <tr key={u.id} className="border-b border-gray-50 align-top">
                           <td className="py-2.5 px-4">
-                            <div className="font-medium" style={{ color: NAVY }}>
+                            <div className="font-medium" style={{ color: GREEN }}>
                               {u.email || '(no email)'}
-                              {isSelf && <span className="ml-2 text-xs" style={{ color: TEAL }}>you</span>}
+                              {isSelf && <span className="ml-2 text-xs" style={{ color: ACCENT }}>you</span>}
                             </div>
                             <div className="mt-1"><RolePill role={u.role} /></div>
                             {rowError[u.id] && <div className="text-xs mt-1" style={{ color: '#c62828' }}>{rowError[u.id]}</div>}
@@ -362,7 +362,7 @@ export default function ManageUsers({
         </div>
 
         <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
-          <button onClick={onClose} className="text-sm text-white px-4 py-2 rounded-lg font-medium" style={{ background: GOLD, color: NAVY }}>
+          <button onClick={onClose} className="text-sm text-white px-4 py-2 rounded-lg font-medium" style={{ background: ACCENT_LIGHT, color: GREEN }}>
             Done
           </button>
         </div>
