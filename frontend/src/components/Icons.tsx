@@ -181,3 +181,11 @@ export const LockIcon = (p: IconProps) => (
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </Svg>
 );
+
+export const GraduationCapIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M22 10 12 5 2 10l10 5 10-5Z" />
+    <path d="M6 12v5c0 1 2.5 3 6 3s6-2 6-3v-5" />
+    <path d="M22 10v6" />
+  </Svg>
+);
