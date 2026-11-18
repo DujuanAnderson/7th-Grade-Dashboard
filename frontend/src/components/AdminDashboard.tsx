@@ -138,6 +138,7 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
               alerts={alerts}
               acknowledged={acked}
               onAcknowledge={(k) => setAcked((prev) => new Set(prev).add(k))}
+              onUnacknowledge={(k) => setAcked((prev) => { const next = new Set(prev); next.delete(k); return next; })}
               onOpen={(id) => setSelected(students.find((s) => s.id === id) ?? null)}
             />
             <span className="hidden sm:inline opacity-80">{user.name}</span>

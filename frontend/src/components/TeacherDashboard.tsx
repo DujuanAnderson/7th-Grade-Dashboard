@@ -112,6 +112,7 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
               alerts={alerts}
               acknowledged={acked}
               onAcknowledge={(k) => setAcked((prev) => new Set(prev).add(k))}
+              onUnacknowledge={(k) => setAcked((prev) => { const next = new Set(prev); next.delete(k); return next; })}
               onOpen={openStudent}
             />
             <span className="hidden sm:inline opacity-80">{user.name}</span>
