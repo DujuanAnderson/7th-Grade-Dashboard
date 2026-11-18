@@ -3,6 +3,7 @@ import type { Student } from '../lib/types';
 import { parseUpload, type Programme, type ParseResult } from '../lib/parsers';
 import { saveUpload } from '../lib/dataClient';
 import { GREEN, ACCENT, STATUS, INK_MUTED } from '../lib/theme';
+import { UploadCloudIcon, ExternalLinkIcon, CheckCircleIcon } from './Icons';
 
 const PROGRAMME_SITE: Record<Programme, { label: string; url: string; embeddable: boolean }> = {
   ffw: { label: 'Fast ForWord', url: 'https://www.scilearn.com', embeddable: true },
@@ -116,6 +117,7 @@ export default function UploadCentre({
               className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors h-full flex flex-col items-center justify-center"
               style={{ borderColor: dragOver ? ACCENT : '#d1d5db', background: dragOver ? '#eef9f1' : '#fafbfc' }}
             >
+              <UploadCloudIcon size={28} className="mb-2" style={{ color: ACCENT }} />
               <p className="text-sm" style={{ color: INK_MUTED }}>
                 <strong>Drag &amp; drop</strong> a {programme === 'ffw' ? 'Fast ForWord' : 'Clear Math'} export here, or click to browse
               </p>
@@ -136,10 +138,10 @@ export default function UploadCentre({
                 href={PROGRAMME_SITE[programme].url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-medium underline whitespace-nowrap ml-2"
+                className="text-xs font-medium underline whitespace-nowrap ml-2 inline-flex items-center gap-1"
                 style={{ color: ACCENT }}
               >
-                Open in new tab ↗
+                Open in new tab <ExternalLinkIcon size={11} />
               </a>
             </div>
             {PROGRAMME_SITE[programme].embeddable ? (
@@ -165,10 +167,10 @@ export default function UploadCentre({
                   href={PROGRAMME_SITE[programme].url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-white inline-flex items-center gap-1.5"
                   style={{ background: ACCENT }}
                 >
-                  Launch {PROGRAMME_SITE[programme].label} ↗
+                  Launch {PROGRAMME_SITE[programme].label} <ExternalLinkIcon size={13} />
                 </a>
               </div>
             )}
@@ -232,10 +234,10 @@ export default function UploadCentre({
                 <button
                   onClick={confirm}
                   disabled={result.matchedCount === 0 || saving}
-                  className="px-3 py-1.5 rounded-lg text-sm text-white font-medium disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-lg text-sm text-white font-medium disabled:opacity-50 inline-flex items-center gap-1.5"
                   style={{ background: ACCENT }}
                 >
-                  {saving ? 'Saving…' : `Confirm & apply ${result.matchedCount} row(s)`}
+                  <CheckCircleIcon size={14} /> {saving ? 'Saving…' : `Confirm & apply ${result.matchedCount} row(s)`}
                 </button>
               </div>
             </div>

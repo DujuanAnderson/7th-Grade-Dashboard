@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { login } from '../lib/dataClient';
 import type { CurrentUser } from '../lib/types';
 import { GREEN, ACCENT, ACCENT_LIGHT } from '../lib/theme';
+import { MailIcon, LockIcon } from './Icons';
 
 export default function Login({ onLogin }: { onLogin: (u: CurrentUser) => void }) {
   const [email, setEmail] = useState('');
@@ -41,18 +42,24 @@ export default function Login({ onLogin }: { onLogin: (u: CurrentUser) => void }
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-              <input
-                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
-                style={{ outlineColor: ACCENT }} required
-              />
+              <div className="relative">
+                <MailIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
+                  style={{ outlineColor: ACCENT }} required
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Password</label>
-              <input
-                type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" required
-              />
+              <div className="relative">
+                <LockIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" required
+                />
+              </div>
             </div>
             {error && <p className="text-sm text-center" style={{ color: '#c62828' }}>{error}</p>}
             <button

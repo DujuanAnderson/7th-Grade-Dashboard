@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Student, AttendanceEntry } from '../lib/types';
 import { computeRisk } from '../lib/compute';
 import { GREEN, ACCENT, STATUS } from '../lib/theme';
+import { SaveIcon } from './Icons';
 
 const SUBJECTS = [
   'English Language Arts', 'Mathematics', 'General Science',
@@ -126,7 +127,7 @@ export default function DataEntry({
         </div>
 
         <div className="flex items-center gap-3 mt-3">
-          <button onClick={saveMarks} className="px-4 py-2 rounded-lg text-sm text-white font-medium" style={{ background: GREEN }}>Save marks</button>
+          <button onClick={saveMarks} className="px-4 py-2 rounded-lg text-sm text-white font-medium inline-flex items-center gap-1.5" style={{ background: GREEN }}><SaveIcon size={14} /> Save marks</button>
           {markMsg && <span className="text-sm" style={{ color: ACCENT }}>{markMsg}</span>}
         </div>
       </div>
@@ -177,7 +178,7 @@ export default function DataEntry({
         </div>
 
         <div className="flex items-center gap-3 mt-3">
-          <button onClick={saveAttendance} className="px-4 py-2 rounded-lg text-sm text-white font-medium" style={{ background: GREEN }}>Save attendance</button>
+          <button onClick={saveAttendance} className="px-4 py-2 rounded-lg text-sm text-white font-medium inline-flex items-center gap-1.5" style={{ background: GREEN }}><SaveIcon size={14} /> Save attendance</button>
           {attMsg && <span className="text-sm" style={{ color: ACCENT }}>{attMsg}</span>}
         </div>
       </div>

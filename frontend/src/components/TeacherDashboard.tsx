@@ -11,11 +11,26 @@ import DataEntry from './DataEntry';
 import NotificationBell from './NotificationBell';
 import { evaluateAlerts } from '../lib/alerts';
 import { exportRosterXlsx } from '../lib/exports';
+import {
+  LogOutIcon, SearchIcon, DownloadIcon, LayoutDashboardIcon, UploadCloudIcon, EditIcon,
+  CheckCircleIcon, AlertTriangleIcon, AlertOctagonIcon, type IconProps,
+} from './Icons';
 
 type Tab = 'overview' | 'upload' | 'entry';
+type IconComponent = (p: IconProps) => JSX.Element;
 
 const BANDS = ['Below', 'Approaching', 'At', 'Above'] as const;
 const RISKS: RiskStatus[] = ['On Track', 'Needs Attention', 'At Risk'];
+const RISK_ICON: Record<RiskStatus, IconComponent> = {
+  'On Track': CheckCircleIcon,
+  'Needs Attention': AlertTriangleIcon,
+  'At Risk': AlertOctagonIcon,
+};
+const TAB_ICON: Record<Tab, IconComponent> = {
+  overview: LayoutDashboardIcon,
+  upload: UploadCloudIcon,
+  entry: EditIcon,
+};
 
 function RiskBadge({ status }: { status: RiskStatus }) {
   const s = STATUS[status];
@@ -103,7 +118,9 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
             <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: ACCENT_LIGHT, color: GREEN }}>
               {roleLabel(user.role)}
             </span>
-            <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Logout</button>
+            <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded inline-flex items-center gap-1.5">
+              <LogOutIcon size={14} /> Logout
+            </button>
           </div>
         </div>
       </header>
@@ -148,18 +165,21 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
         {/* Tabs */}
         <div className="border-b border-gray-200 flex gap-1">
           {([['overview', 'Overview'], ['upload', 'Upload Centre'], ['entry', 'Data Entry']] as [Tab, string][]).map(
-            ([key, label]) => (
-              <button
-                key={key}
-                onClick={() => setTab(key)}
-                className="px-4 py-2 text-sm font-medium -mb-px border-b-2"
-                style={tab === key
-                  ? { color: GREEN, borderColor: ACCENT }
-                  : { color: INK_MUTED, borderColor: 'transparent' }}
-              >
-                {label}
-              </button>
-            ),
+            ([key, label]) => {
+              const TabIcon = TAB_ICON[key];
+              return (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  className="px-4 py-2 text-sm font-medium -mb-px border-b-2 inline-flex items-center gap-1.5"
+                  style={tab === key
+                    ? { color: GREEN, borderColor: ACCENT }
+                    : { color: INK_MUTED, borderColor: 'transparent' }}
+                >
+                  <TabIcon size={15} /> {label}
+                </button>
+              );
+            },
           )}
         </div>
 
@@ -167,15 +187,18 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
         <>
         {/* Quick stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {RISKS.map((r) => (
-            <div key={r} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-500">{r}</div>
-                <div className="text-3xl font-bold" style={{ color: STATUS[r].fg }}>{counts[r]}</div>
+          {RISKS.map((r) => {
+            const RiskIcon = RISK_ICON[r];
+            return (
+              <div key={r} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-gray-500">{r}</div>
+                  <div className="text-3xl font-bold" style={{ color: STATUS[r].fg }}>{counts[r]}</div>
+                </div>
+                <RiskIcon size={28} className="flex-shrink-0" style={{ color: STATUS[r].dot }} />
               </div>
-              <span className="w-3 h-3 rounded-full" style={{ background: STATUS[r].dot }} />
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Charts */}
@@ -197,10 +220,13 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
           <div className="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100">
             <h2 className="font-semibold" style={{ color: GREEN }}>My Students' Roster</h2>
             <div className="flex gap-2">
-              <input
-                placeholder="Search name…" value={query} onChange={(e) => setQuery(e.target.value)}
-                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 w-40"
-              />
+              <div className="relative">
+                <SearchIcon size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  placeholder="Search name…" value={query} onChange={(e) => setQuery(e.target.value)}
+                  className="text-sm border border-gray-300 rounded-lg pl-8 pr-3 py-1.5 w-40"
+                />
+              </div>
               <select
                 value={riskFilter} onChange={(e) => setRiskFilter(e.target.value as any)}
                 className="text-sm border border-gray-300 rounded-lg px-3 py-1.5"
@@ -210,10 +236,10 @@ export default function TeacherDashboard({ user, onLogout }: { user: CurrentUser
               </select>
               <button
                 onClick={() => exportRosterXlsx(filtered, schools, `${school?.code ?? 'cohort'}-roster.xlsx`)}
-                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50"
+                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50 inline-flex items-center gap-1.5"
                 title="Download the current roster as an Excel file"
               >
-                Export Excel
+                <DownloadIcon size={14} /> Export Excel
               </button>
             </div>
           </div>

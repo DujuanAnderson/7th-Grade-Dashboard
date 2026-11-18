@@ -4,6 +4,7 @@ import {
 import type { Student, School } from '../lib/types';
 import { GREEN, ACCENT, STATUS, BAND_COLOR, GRID, AXIS, INK_MUTED } from '../lib/theme';
 import { printStudentReport } from '../lib/exports';
+import { DownloadIcon, XIcon } from './Icons';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -55,12 +56,12 @@ export default function StudentProfileCard({
             </span>
             <button
               onClick={() => printStudentReport(student, school)}
-              className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded"
+              className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded inline-flex items-center gap-1.5"
               title="Generate a printable PDF report"
             >
-              Download report
+              <DownloadIcon size={13} /> Download report
             </button>
-            <button onClick={onClose} className="text-white/80 hover:text-white text-2xl leading-none" aria-label="Close">×</button>
+            <button onClick={onClose} className="text-white/80 hover:text-white leading-none" aria-label="Close"><XIcon size={22} /></button>
           </div>
         </div>
 

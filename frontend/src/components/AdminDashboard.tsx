@@ -13,6 +13,7 @@ import ManageUsers from './ManageUsers';
 import NotificationBell from './NotificationBell';
 import { evaluateAlerts } from '../lib/alerts';
 import { exportRosterXlsx, printCrossSchoolReport } from '../lib/exports';
+import { LogOutIcon, UsersIcon, DownloadIcon, ChevronUpIcon, ChevronDownIcon } from './Icons';
 
 const axisTick = { fontSize: 12, fill: INK_MUTED };
 
@@ -141,8 +142,12 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
             />
             <span className="hidden sm:inline opacity-80">{user.name}</span>
             <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: ACCENT_LIGHT, color: GREEN }}>{roleLabel(user.role)}</span>
-            <button onClick={() => setManageUsers(true)} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Manage Users</button>
-            <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Logout</button>
+            <button onClick={() => setManageUsers(true)} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded inline-flex items-center gap-1.5">
+              <UsersIcon size={14} /> Manage Users
+            </button>
+            <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded inline-flex items-center gap-1.5">
+              <LogOutIcon size={14} /> Logout
+            </button>
           </div>
         </div>
       </header>
@@ -279,7 +284,10 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
                   {([['code', 'School'], ['enrolled', 'Students'], ['literacyBenchmarkPct', 'Literacy %'], ['ffwAvg', 'FFW %'], ['masteryAvg', 'Mastery %'], ['attendanceAvg', 'Attendance %']] as [SortKey, string][]).map(
                     ([k, label]) => (
                       <th key={k} onClick={() => toggleSort(k)} className="py-2.5 px-4 cursor-pointer select-none text-gray-500 hover:text-gray-700">
-                        {label}{sortKey === k ? (sortAsc ? ' ▲' : ' ▼') : ''}
+                        <span className="inline-flex items-center gap-1">
+                          {label}
+                          {sortKey === k && (sortAsc ? <ChevronUpIcon size={12} /> : <ChevronDownIcon size={12} />)}
+                        </span>
                       </th>
                     ),
                   )}
@@ -341,11 +349,11 @@ export default function AdminDashboard({ user, onLogout }: { user: CurrentUser; 
           <h2 className="font-semibold mb-1" style={{ color: GREEN }}>Reports &amp; Export</h2>
           <p className="text-xs text-gray-400 mb-3">Generate branded reports or export the data in scope.</p>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => printCrossSchoolReport(students, schools)} className="px-3 py-2 rounded-lg text-sm text-white font-medium" style={{ background: GREEN }}>
-              Cross-School Report (PDF)
+            <button onClick={() => printCrossSchoolReport(students, schools)} className="px-3 py-2 rounded-lg text-sm text-white font-medium inline-flex items-center gap-1.5" style={{ background: GREEN }}>
+              <DownloadIcon size={14} /> Cross-School Report (PDF)
             </button>
-            <button onClick={() => exportRosterXlsx(inScope, schools, 'zlc-raw-data.xlsx')} className="px-3 py-2 rounded-lg text-sm font-medium border" style={{ color: GREEN, borderColor: '#d1d5db' }}>
-              Raw Data Export (Excel)
+            <button onClick={() => exportRosterXlsx(inScope, schools, 'zlc-raw-data.xlsx')} className="px-3 py-2 rounded-lg text-sm font-medium border inline-flex items-center gap-1.5" style={{ color: GREEN, borderColor: '#d1d5db' }}>
+              <DownloadIcon size={14} /> Raw Data Export (Excel)
             </button>
           </div>
         </div>

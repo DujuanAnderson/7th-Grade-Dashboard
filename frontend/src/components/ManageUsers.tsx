@@ -3,6 +3,7 @@ import type { CurrentUser, School, UserProfile, UserRole } from '../lib/types';
 import { USER_ROLES, SCHOOL_SCOPED_ROLES, roleLabel } from '../lib/types';
 import { getUsers, updateUser, deleteUser, createUser } from '../lib/dataClient';
 import { GREEN, ACCENT, ACCENT_LIGHT, INK_MUTED, schoolColor } from '../lib/theme';
+import { XIcon, RefreshIcon, PlusIcon, SearchIcon, TrashIcon } from './Icons';
 
 function RolePill({ role }: { role: UserRole }) {
   const allSchool = !SCHOOL_SCOPED_ROLES.includes(role);
@@ -152,30 +153,33 @@ export default function ManageUsers({
               Assign roles and school scope, or remove accounts. {users.length} account{users.length === 1 ? '' : 's'}.
             </p>
           </div>
-          <button onClick={onClose} className="text-white/80 hover:text-white text-2xl leading-none" aria-label="Close">×</button>
+          <button onClick={onClose} className="text-white/80 hover:text-white leading-none" aria-label="Close"><XIcon size={22} /></button>
         </div>
 
         <div className="p-6 space-y-4">
           <div className="flex flex-wrap items-center gap-3">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by email, role or school…"
-              className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
-            />
+            <div className="relative flex-1 min-w-[200px]">
+              <SearchIcon size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by email, role or school…"
+                className="border border-gray-300 rounded-lg pl-8 pr-3 py-1.5 text-sm w-full"
+              />
+            </div>
             <button
               onClick={load}
-              className="text-sm px-3 py-1.5 rounded-lg border font-medium"
+              className="text-sm px-3 py-1.5 rounded-lg border font-medium inline-flex items-center gap-1.5"
               style={{ color: GREEN, borderColor: '#d1d5db' }}
             >
-              Refresh
+              <RefreshIcon size={14} /> Refresh
             </button>
             <button
               onClick={() => { setShowAdd((v) => !v); setAddError(null); setAddNotice(null); }}
-              className="text-sm px-3 py-1.5 rounded-lg text-white font-medium"
+              className="text-sm px-3 py-1.5 rounded-lg text-white font-medium inline-flex items-center gap-1.5"
               style={{ background: ACCENT }}
             >
-              {showAdd ? 'Close' : '+ Add User'}
+              {showAdd ? <><XIcon size={14} /> Close</> : <><PlusIcon size={14} /> Add User</>}
             </button>
           </div>
 
@@ -344,10 +348,10 @@ export default function ManageUsers({
                                 onClick={() => setConfirmDelete(u)}
                                 disabled={busy || isSelf}
                                 title={isSelf ? 'You cannot remove your own account' : 'Remove account'}
-                                className="text-xs px-2 py-1 rounded border font-medium disabled:opacity-40"
+                                className="text-xs px-2 py-1 rounded border font-medium disabled:opacity-40 inline-flex items-center gap-1"
                                 style={{ color: '#c62828', borderColor: '#e6c3c3' }}
                               >
-                                Remove
+                                <TrashIcon size={12} /> Remove
                               </button>
                             )}
                           </td>
